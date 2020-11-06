@@ -160,13 +160,6 @@ class NW_method:
                         self.matrix[n][j].capacity = 0
 
                 self.matrix[i][j].capacity = min_val
-
-                # for l in self.matrix:
-                #    for m in l:
-                #        print(f'{m.capacity}\t', end='')
-                #    print('\n')
-                # print('------------------')
-
                 k += 1
 
     def potentials(self):
@@ -175,15 +168,15 @@ class NW_method:
 
         self.U = []
         self.V = []
+        for i in range(row_num):
+            for j in range(col_num):
+                self.matrix[i][j].sign = ''
 
         for i in range(row_num):
             self.U.append('')
         for i in range(col_num):
             self.V.append('')
         self.U[0] = 0
-
-        # start_cell = self.U[0]
-        # found_cells = []
 
         # заполнение V и U
         for i in range(row_num):
@@ -197,23 +190,19 @@ class NW_method:
                         continue
                     self.U[k] = self.V[j] - self.matrix[k][j].price
 
-        print('значения с с волной:')
         # нахождение с c волной
         for i in range(row_num):
             for j in range(col_num):
                 if self.matrix[i][j].capacity != 0:
                     continue
                 self.matrix[i][j].c_voln = self.V[j] - self.U[i]
-                print(self.matrix[i][j].c_voln, end='  ')
 
-        print('значения дельта с:')
         # нахождение дельта с
         finish = False
         for i in range(row_num):
             for j in range(col_num):
                 if self.matrix[i][j].capacity == 0:
                     self.matrix[i][j].delta = self.matrix[i][j].price - self.matrix[i][j].c_voln
-                    print(self.matrix[i][j].delta, end='  ')
                     if self.matrix[i][j].delta < 0:
                         finish = True
         if finish:
@@ -229,7 +218,6 @@ class NW_method:
                             min_i = i
                             min_j = j
 
-            print(f'координаты клетки с мин дельтой: {min_i} {min_j}, {self.matrix[min_i][min_j].delta}')
             # ищем цикл
             i = min_i
             j = min_j
@@ -246,12 +234,6 @@ class NW_method:
                             cycle_2.sign = '+'
                             cycle_1.sign = '-'
                             cycle_3.sign = '-'
-                            print('до прибавления')
-                            print(f'i: {i}, j: {j}, n: {n}, m: {m}')
-                            print(f'i: {i}, j: {j}, {self.matrix[i][j].capacity}')
-                            print(f'i: {n}, j: {j}, {self.matrix[n][j].capacity}')
-                            print(f'i: {n}, j: {m}, {self.matrix[n][m].capacity}')
-                            print(f'i: {i}, j: {m}, {self.matrix[i][m].capacity}')
 
                             # найдем минимальное значение из трех не нулевых
                             min_cycle = min(cycle_1.capacity, cycle_3.capacity)
@@ -261,12 +243,6 @@ class NW_method:
                             cycle_1.capacity -= min_cycle
                             cycle_3.capacity -= min_cycle
 
-                            print(f'после прибавления минимума: {min_cycle}')
-                            print(f'i: {i}, j: {j}, n: {n}, m: {m}')
-                            print(f'i: {i}, j: {j}, {self.matrix[i][j].capacity}')
-                            print(f'i: {n}, j: {j}, {self.matrix[n][j].capacity}')
-                            print(f'i: {n}, j: {m}, {self.matrix[n][m].capacity}')
-                            print(f'i: {i}, j: {m}, {self.matrix[i][m].capacity}')
 
                             return True
         else:
@@ -344,4 +320,3 @@ class NW_method:
     def show_matrix(self):
         self.solution_of_matrix()
         self._create_table()
-
