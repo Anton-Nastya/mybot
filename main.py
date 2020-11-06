@@ -71,6 +71,18 @@ def nwcorner_body(message):
 @privilege_check(bot)
 def grant_privileges(message):
     arguments = message.text.split()
+    if '-users' not in arguments or '-priv' not in arguments:
+        bot.send_message(message.from_user.id, "Неверный ввод")
+        return None
+
+    with open("data_files/users.json") as f:
+        users = json.load(f)
+
+    for user in users:
+        if user['name'] in arguments[arguments.index('-users') + 1: arguments.index('-priv')]:
+            pass
+
+
 
 
 @bot.message_handler(content_types=['text'])
