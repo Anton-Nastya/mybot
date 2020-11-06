@@ -3,7 +3,7 @@ import json
 from privilege_checker import privilege_check
 from nwcorner import NW_method
 
-bot = telebot.TeleBot()
+bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 
 def check_user(user_id, name):
