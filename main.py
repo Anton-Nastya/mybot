@@ -80,6 +80,7 @@ def grant_privileges(message):
 
     for user in users:
         if user['name'] in arguments[arguments.index('-users') + 1: arguments.index('-priv')]:
+            print('a')
             pass
 
 
