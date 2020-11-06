@@ -274,27 +274,74 @@ class NW_method:
             return False
 
     def table_potentials(self):
+        cell_size = (60, 40)
+
+        row_num = len(self.matrix) + 2
+        col_num = len(self.matrix[0]) + 2
+
+        img = Image.new('RGBA', (cell_size[0] * col_num, cell_size[1] * row_num), 'white')
+        draw = ImageDraw.Draw(img)
+
+        for i in range(1, row_num + 1):
+            draw.line((0, cell_size[1] * i, img.width, cell_size[1] * i), width=0, fill='black')
+
+        for i in range(1, col_num + 1):
+            draw.line((cell_size[0] * i, 0, cell_size[0] * i, img.height), width=0, fill='black')
+
+        font = ImageFont.truetype("calibri.ttf", size=20)
+        font_price = ImageFont.truetype("calibri.ttf", size=15)
+
+        padding = 5
+
+        draw.text((padding, padding), "P", font=font, fill='black')
+
+        for i in range(1, col_num - 1):
+            draw.text((cell_size[0] * i + padding, padding), "T{}".format(i), font=font, fill='black')
+
+        draw.text((cell_size[0] * (i + 1) + padding, padding), "U", font=font, fill='black')
+
+        for i in range(1, row_num - 1):
+            draw.text((padding, cell_size[1] * i + padding), "S{}".format(i), font=font, fill='black')
+
+        draw.text((padding, cell_size[1] * (i + 1) + padding), "V", font=font, fill='black')
+
+        for i in range(1, col_num - 1):
+            text = str(self.V[i - 1])
+            draw.text((cell_size[0] * i + padding, cell_size[1] * (row_num - 1) + padding), text, font=font,
+                      fill='black')
+
+        for i in range(1, row_num - 1):
+            text = str(self.U[i - 1])
+            draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * i + padding), text, font=font,
+                      fill='black')
+
+        for i in range(1, row_num - 1):
+            for j in range(1, col_num - 1):
+                cap_num = str(self.matrix[i - 1][j - 1].capacity)
+                cap_text_size = font.getsize(cap_num)
+                price_num = str(self.matrix[i - 1][j - 1].price)
+                delta = str(self.matrix[i - 1][j - 1].delta)
+                c_voln = str(self.matrix[i - 1][j - 1].c_voln)
+                sign = str(self.matrix[i - 1][j - 1].sign)
+                draw.text((cell_size[0] * j + (cell_size[0] - cap_text_size[0]) / 2,
+                           cell_size[1] * i + (cell_size[1] - cap_text_size[1]) / 2), cap_num, font=font,
+                          fill='black')
+                draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * i + padding), price_num,
+                          font=font_price,
+                          fill='black')
+
+                draw.text((cell_size[0] * j + padding, cell_size[1] * (i + 1) - padding * 2.5), delta, font=font_price,
+                          fill='black')
+                draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding), c_voln,
+                          font=font_price,
+                          fill='black')
+                draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * (i + 1) - padding * 2.5), sign, font=font_price,
+                          fill='red')
+
+        img.save(f"pictures/potentials{self.message.from_user.id}.png")
 
 
     def show_matrix(self):
         self.solution_of_matrix()
         self._create_table()
-
-
-        _ = True
-        while _:
-            _ = self.potentials()
-            self.table_potentials()
-
-        result = ''
-        for row in self.matrix:
-            for cell in row:
-                result += str(cell.capacity) + '/' + str(cell.price) + ' '
-
-            result = result[:-1] + '\n'
-
-        result += 'A=' + ' '.join(map(str, self.stock)) + '\n'
-        result += 'B=' + ' '.join(map(str, self.proposal))
-
-        self.bot.send_message(self.message.from_user.id, result)
 
