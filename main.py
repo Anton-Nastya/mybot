@@ -2,8 +2,25 @@ import telebot
 import json
 from privilege_checker import privilege_check
 from nwcorner import NW_method
+from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
+
+
+def numeric_keyboard():
+    markup = types.ReplyKeyboardMarkup()
+
+    for i in range(1, 10, 3):
+        elem1 = types.KeyboardButton(str(i))
+        elem2 = types.KeyboardButton(str(i + 1))
+        elem3 = types.KeyboardButton(str(i + 2))
+        markup.row(elem1, elem2, elem3)
+
+    space = types.KeyboardButton(" ")
+    enter = types.KeyboardButton("\n")
+    markup.row(space, enter)
+
+    return markup
 
 
 def check_user(user_id, name):
@@ -64,7 +81,7 @@ def nwcorner_body(message):
         with open(f"pictures/table{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
     except:
-        bot.send_message(message.from_user.id, "Неверный ввод")
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
 
 
 @bot.message_handler(commands=['grant'])

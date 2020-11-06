@@ -2,9 +2,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 class Cell:
-
     def __init__(self, price):
-        self.capacity = 100
+        self.capacity = -1
         self.price = price
 
     def _set_capacity(self, capacity):
@@ -12,13 +11,14 @@ class Cell:
 
 
 class NW_method:
-
     def __init__(self, matrix, bot, message):
         self.message = message
         self.bot = bot
         self.matrix = []
-        self.stock = []
-        self.proposal = []
+        self.stock = []     # a
+        self.proposal = []  # b
+        self.a_matrix = []
+        self.b_matrix = []
         matrix_list = matrix.split('\n')
         count = len(matrix_list[0].split())
 
@@ -40,8 +40,10 @@ class NW_method:
         if sum(self.proposal) != sum(self.stock):
             raise ValueError
 
-    def _create_table(self, calc=6):
+
+    def _create_table(self):
         cell_size = (60, 40)
+        calc = len(self.a_matrix) - 1
 
         row_num = len(self.matrix) + 2
         col_num = len(self.matrix[0]) + 2
@@ -60,6 +62,7 @@ class NW_method:
 
         img.save(f"pictures/table{self.message.from_user.id}.png")
         self._fill_table(cell_size, row_num, col_num)
+
 
     def _fill_table(self, cell_size, row_num, col_num):
         img = Image.open(f"pictures/table{self.message.from_user.id}.png")
@@ -106,24 +109,44 @@ class NW_method:
 
         img.save(f"pictures/table{self.message.from_user.id}.png")
 
+
     def solution_of_matrix(self):
-        row_num = len(self.matrix) + 2
+        row_num = len(self.matrix)
+        col_num = len(self.matrix[0])
+        self.a_matrix.append(self.stock[:])
+        self.b_matrix.append(self.proposal[:])
 
-        col_num = len(self.matrix[0]) + 2
-
-        a_matrix = []
-        b_matrix = []
+        k = 0
 
         # находим сз угол
         for i in range(row_num):
             for j in range(col_num):
-                if self.matrix[i][j] != -1:
+                if self.matrix[i][j].capacity != -1:
                     continue
 
-                min_val = min(self.stock[i], self.proposal[j])
-                self.matrix[i][j] = min_val
-                self.stock -= min_val
-                self.proposal -= min_val
+                min_val = min(self.a_matrix[k][i], self.b_matrix[k][j])
+                #self.matrix[i][j].capacity = min_val
+                self.a_matrix.append(self.a_matrix[k][:])
+                self.b_matrix.append(self.b_matrix[k][:])
+                self.a_matrix[k+1][i] -= min_val
+                self.b_matrix[k+1][j] -= min_val
+
+                if min_val == self.a_matrix[k][i]:
+                    for n in range(i+1, col_num):
+                        self.matrix[i][n].capacity = 0
+                if min_val == self.b_matrix[k][j]:
+                    for n in range(j+1, row_num):
+                        self.matrix[n][j].capacity = 0
+
+                self.matrix[i][j].capacity = min_val
+
+                #for l in self.matrix:
+                #    for m in l:
+                #        print(f'{m.capacity}\t', end='')
+                #    print('\n')
+                #print('------------------')
+
+                k += 1
 
 
     def show_matrix(self):
