@@ -106,7 +106,28 @@ class NW_method:
 
         img.save(f"pictures/table{self.message.from_user.id}.png")
 
+    def solution_of_matrix(self):
+        row_num = len(self.matrix) + 2
+
+        col_num = len(self.matrix[0]) + 2
+
+        a_matrix = []
+        b_matrix = []
+
+        # находим сз угол
+        for i in range(row_num):
+            for j in range(col_num):
+                if self.matrix[i][j] != -1:
+                    continue
+
+                min_val = min(self.stock[i], self.proposal[j])
+                self.matrix[i][j] = min_val
+                self.stock -= min_val
+                self.proposal -= min_val
+
+
     def show_matrix(self):
+        self.solution_of_matrix()
         self._create_table()
         result = ''
         for row in self.matrix:
