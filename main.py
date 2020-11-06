@@ -7,18 +7,12 @@ from telebot import types
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 
-def numeric_keyboard():
-    markup = types.ReplyKeyboardMarkup()
+def command_choice(command):
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 
-    for i in range(1, 10, 3):
-        elem1 = types.KeyboardButton(str(i))
-        elem2 = types.KeyboardButton(str(i + 1))
-        elem3 = types.KeyboardButton(str(i + 2))
-        markup.row(elem1, elem2, elem3)
-
-    space = types.KeyboardButton(" ")
-    enter = types.KeyboardButton("\n")
-    markup.row(space, enter)
+    accept = types.KeyboardButton(command)
+    exit_command = types.KeyboardButton("/exit")
+    markup.row(accept, exit_command)
 
     return markup
 
@@ -80,6 +74,7 @@ def nwcorner_body(message):
         method.show_matrix()
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
 

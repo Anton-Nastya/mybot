@@ -111,15 +111,15 @@ class NW_method:
         draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * (row_num - 1) + padding),
                   str(sum(self.stock)), font=font, fill='black')
 
-        for i in range(row_num + 1, row_num + len(self.a_matrix)):
+        for i in range(col_num + 1, col_num + len(self.a_matrix)):
             for j in range(1, len(self.a_matrix[0]) + 1):
-                draw.text((cell_size[0] * i + padding, cell_size[1] * j + padding),
-                          str(self.a_matrix[i - row_num][j - 1]), font=font, fill='black')
+                draw.text((cell_size[0] * (i - 1) + padding, cell_size[1] * j + padding),
+                          str(self.a_matrix[i - col_num][j - 1]), font=font, fill='black')
 
-        for i in range(col_num + 1, col_num + len(self.b_matrix)):
+        for i in range(row_num + 1, row_num + len(self.b_matrix)):
             for j in range(1, len(self.b_matrix[0]) + 1):
-                draw.text((cell_size[0] * j + padding, cell_size[1] * (i - 2) + padding),
-                          str(self.b_matrix[i - col_num][j - 1]), font=font, fill='black')
+                draw.text((cell_size[0] * j + padding, cell_size[1] * (i - 1) + padding),
+                          str(self.b_matrix[i - row_num][j - 1]), font=font, fill='black')
 
         img.save(f"pictures/nwcorner{self.message.from_user.id}.png")
 
@@ -153,25 +153,9 @@ class NW_method:
 
                 self.matrix[i][j].capacity = min_val
 
-                # for l in self.matrix:
-                #    for m in l:
-                #        print(f'{m.capacity}\t', end='')
-                #    print('\n')
-                # print('------------------')
-
                 k += 1
 
     def show_matrix(self):
         self.solution_of_matrix()
         self._create_table()
-        result = ''
-        for row in self.matrix:
-            for cell in row:
-                result += str(cell.capacity) + '/' + str(cell.price) + ' '
-
-            result = result[:-1] + '\n'
-
-        result += 'A=' + ' '.join(map(str, self.stock)) + '\n'
-        result += 'B=' + ' '.join(map(str, self.proposal))
-
-        self.bot.send_message(self.message.from_user.id, result)
+        return self.matrix

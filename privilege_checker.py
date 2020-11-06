@@ -4,6 +4,9 @@ from json import load
 def privilege_check(bot):
     def decorator(func):
         def wrapper(message):
+            if message.text == '/exit':
+                return None
+
             with open("data_files/users.json") as f:
                 users = load(f)
 
