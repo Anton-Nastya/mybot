@@ -78,7 +78,7 @@ def nwcorner_body(message):
     try:
         method = NW_method(message.text, bot, message)
         method.show_matrix()
-        with open(f"pictures/table{message.from_user.id}.png", "rb") as pic:
+        with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")

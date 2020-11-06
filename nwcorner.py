@@ -95,7 +95,7 @@ class NW_method:
             draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * i + padding), text, font=font,
                       fill='black')
 
-        img.save(f"pictures/table{self.message.from_user.id}.png")
+        img.save(f"pictures/nwcorner{self.message.from_user.id}.png")
 
         for i in range(1, row_num - 1):
             for j in range(1, col_num - 1):
@@ -107,7 +107,7 @@ class NW_method:
                 draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * i + padding), price_num, font=font_price,
                           fill='black')
 
-        img.save(f"pictures/table{self.message.from_user.id}.png")
+        img.save(f"pictures/nwcorner{self.message.from_user.id}.png")
 
 
     def solution_of_matrix(self):
