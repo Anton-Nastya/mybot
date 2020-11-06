@@ -78,10 +78,19 @@ def grant_privileges(message):
     with open("data_files/users.json") as f:
         users = json.load(f)
 
-    for user in users:
-        if user['name'] in arguments[arguments.index('-users') + 1: arguments.index('-priv')]:
-            pass
+    print(users)
 
+    grant_users = arguments[arguments.index('-users') + 1: arguments.index('-priv')]
+    privileges = arguments[arguments.index('-priv') + 1:]
+
+    for user in users:
+        if user['name'] in grant_users:
+            user['privileges'].extend(['/' + priv for priv in privileges])
+
+    print(users)
+
+    with open("data_files/users.json", "w") as f:
+        users = json.dump(users, f)
 
 
 
