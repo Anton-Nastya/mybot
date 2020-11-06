@@ -5,6 +5,9 @@ class Cell:
     def __init__(self, price):
         self.capacity = -1
         self.price = price
+        self.c_voln = ''
+        self.delta = ''
+        self.sign = ''
 
     def _set_capacity(self, capacity):
         self.capacity = capacity
@@ -15,10 +18,13 @@ class NW_method:
         self.message = message
         self.bot = bot
         self.matrix = []
-        self.stock = []  # a
+        self.stock = []     # a
         self.proposal = []  # b
         self.a_matrix = []
         self.b_matrix = []
+
+        self.U = []
+        self.V = []
         matrix_list = matrix.split('\n')
         count = len(matrix_list[0].split())
 
@@ -39,6 +45,7 @@ class NW_method:
 
         if sum(self.proposal) != sum(self.stock):
             raise ValueError
+
 
     def _create_table(self):
         cell_size = (60, 40)
@@ -64,6 +71,7 @@ class NW_method:
 
         img.save(f"pictures/nwcorner{self.message.from_user.id}.png")
         self._fill_table(cell_size, row_num, col_num)
+
 
     def _fill_table(self, cell_size, row_num, col_num):
         img = Image.open(f"pictures/nwcorner{self.message.from_user.id}.png")
@@ -153,9 +161,140 @@ class NW_method:
 
                 self.matrix[i][j].capacity = min_val
 
+                # for l in self.matrix:
+                #    for m in l:
+                #        print(f'{m.capacity}\t', end='')
+                #    print('\n')
+                # print('------------------')
+
                 k += 1
+
+    def potentials(self):
+        row_num = len(self.matrix)
+        col_num = len(self.matrix[0])
+
+        self.U = []
+        self.V = []
+
+        for i in range(row_num):
+            self.U.append('')
+        for i in range(col_num):
+            self.V.append('')
+        self.U[0] = 0
+
+        # start_cell = self.U[0]
+        # found_cells = []
+
+        # заполнение V и U
+        for i in range(row_num):
+            for j in range(col_num):
+                if self.matrix[i][j].capacity == 0:
+                    continue
+                self.V[j] = self.matrix[i][j].price + self.U[i]
+
+                for k in range(row_num):
+                    if self.matrix[k][j].capacity == 0 or self.U[k] != '':
+                        continue
+                    self.U[k] = self.V[j] - self.matrix[k][j].price
+
+        print('значения с с волной:')
+        # нахождение с c волной
+        for i in range(row_num):
+            for j in range(col_num):
+                if self.matrix[i][j].capacity != 0:
+                    continue
+                self.matrix[i][j].c_voln = self.V[j] - self.U[i]
+                print(self.matrix[i][j].c_voln, end='  ')
+
+        print('значения дельта с:')
+        # нахождение дельта с
+        finish = False
+        for i in range(row_num):
+            for j in range(col_num):
+                if self.matrix[i][j].capacity == 0:
+                    self.matrix[i][j].delta = self.matrix[i][j].price - self.matrix[i][j].c_voln
+                    print(self.matrix[i][j].delta, end='  ')
+                    if self.matrix[i][j].delta < 0:
+                        finish = True
+        if finish:
+            # значит есть отрицательные дельты
+            # ищем цикл
+            # ищем ноль с минимальной ценой
+            min_delta = 100_000_000_000
+            for i in range(row_num):
+                for j in range(col_num):
+                    if self.matrix[i][j].capacity == 0:
+                        if self.matrix[i][j].delta < min_delta:
+                            min_delta = self.matrix[i][j].delta
+                            min_i = i
+                            min_j = j
+
+            print(f'координаты клетки с мин дельтой: {min_i} {min_j}, {self.matrix[min_i][min_j].delta}')
+            # ищем цикл
+            i = min_i
+            j = min_j
+            for n in range(row_num):
+                if self.matrix[n][j].capacity != 0:
+                    for m in range(col_num):
+                        if self.matrix[n][m].capacity != 0 and self.matrix[i][m].capacity != 0:
+                            cycle_min = self.matrix[i][j]  # клетка со значением 0 в цикле
+                            cycle_1 = self.matrix[n][j]
+                            cycle_2 = self.matrix[n][m]
+                            cycle_3 = self.matrix[i][m]
+
+                            cycle_min.sign = '+'
+                            cycle_2.sign = '+'
+                            cycle_1.sign = '-'
+                            cycle_3.sign = '-'
+                            print('до прибавления')
+                            print(f'i: {i}, j: {j}, n: {n}, m: {m}')
+                            print(f'i: {i}, j: {j}, {self.matrix[i][j].capacity}')
+                            print(f'i: {n}, j: {j}, {self.matrix[n][j].capacity}')
+                            print(f'i: {n}, j: {m}, {self.matrix[n][m].capacity}')
+                            print(f'i: {i}, j: {m}, {self.matrix[i][m].capacity}')
+
+                            # найдем минимальное значение из трех не нулевых
+                            min_cycle = min(cycle_1.capacity, cycle_3.capacity)
+
+                            cycle_min.capacity += min_cycle
+                            cycle_2.capacity += min_cycle
+                            cycle_1.capacity -= min_cycle
+                            cycle_3.capacity -= min_cycle
+
+                            print(f'после прибавления минимума: {min_cycle}')
+                            print(f'i: {i}, j: {j}, n: {n}, m: {m}')
+                            print(f'i: {i}, j: {j}, {self.matrix[i][j].capacity}')
+                            print(f'i: {n}, j: {j}, {self.matrix[n][j].capacity}')
+                            print(f'i: {n}, j: {m}, {self.matrix[n][m].capacity}')
+                            print(f'i: {i}, j: {m}, {self.matrix[i][m].capacity}')
+
+                            return True
+        else:
+            # отрицательных дельт нет, задача оптимизирована
+            return False
+
+    def table_potentials(self):
+
 
     def show_matrix(self):
         self.solution_of_matrix()
         self._create_table()
-        return self.matrix
+
+
+        _ = True
+        while _:
+            _ = self.potentials()
+            self.table_potentials()
+
+        result = ''
+        for row in self.matrix:
+            for cell in row:
+                result += str(cell.capacity) + '/' + str(cell.price) + ' '
+
+            result = result[:-1] + '\n'
+
+        result += 'A=' + ' '.join(map(str, self.stock)) + '\n'
+        result += 'B=' + ' '.join(map(str, self.proposal))
+
+        self.bot.send_message(self.message.from_user.id, result)
+
