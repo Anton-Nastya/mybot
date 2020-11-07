@@ -2,6 +2,7 @@ import telebot
 import json
 from privilege_checker import privilege_check
 from nwcorner import NW_method
+from potential_optimization import Potential
 from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
@@ -71,15 +72,15 @@ def start_nwcorner(message):
 def nwcorner_body(message):
 
         method = NW_method(message.text, bot, message)
-        method.show_matrix()
+        optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
 
         optimize = True
         while optimize:
-            optimize = method.potentials()
-            method.table_potentials()
+            optimize = optimization.potentials()
+            optimization.table_potentials()
             with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
                 bot.send_photo(message.from_user.id, photo=pic)
 
