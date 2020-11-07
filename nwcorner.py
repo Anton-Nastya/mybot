@@ -119,14 +119,14 @@ class NW_method:
         draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * (row_num - 1) + padding),
                   str(sum(self.stock)), font=font, fill='black')
 
-        for i in range(col_num + 1, col_num + len(self.a_matrix)):
+        for i in range(col_num, col_num + len(self.a_matrix)):
             for j in range(1, len(self.a_matrix[0]) + 1):
-                draw.text((cell_size[0] * (i - 1) + padding, cell_size[1] * j + padding),
+                draw.text((cell_size[0] * i + padding, cell_size[1] * j + padding),
                           str(self.a_matrix[i - col_num][j - 1]), font=font, fill='black')
 
-        for i in range(row_num + 1, row_num + len(self.b_matrix)):
+        for i in range(row_num, row_num + len(self.b_matrix)):
             for j in range(1, len(self.b_matrix[0]) + 1):
-                draw.text((cell_size[0] * j + padding, cell_size[1] * (i - 1) + padding),
+                draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding),
                           str(self.b_matrix[i - row_num][j - 1]), font=font, fill='black')
 
         img.save(f"pictures/nwcorner{self.message.from_user.id}.png")
@@ -139,28 +139,17 @@ class NW_method:
 
         k = 0
 
-        # находим сз угол
         for i in range(row_num):
             for j in range(col_num):
-                if self.matrix[i][j].capacity != -1:
-                    continue
-
                 min_val = min(self.a_matrix[k][i], self.b_matrix[k][j])
-                # self.matrix[i][j].capacity = min_val
-                self.a_matrix.append(self.a_matrix[k][:])
-                self.b_matrix.append(self.b_matrix[k][:])
-                self.a_matrix[k + 1][i] -= min_val
-                self.b_matrix[k + 1][j] -= min_val
-
-                if min_val == self.a_matrix[k][i]:
-                    for n in range(i + 1, col_num):
-                        self.matrix[i][n].capacity = 0
-                if min_val == self.b_matrix[k][j]:
-                    for n in range(j + 1, row_num):
-                        self.matrix[n][j].capacity = 0
-
                 self.matrix[i][j].capacity = min_val
-                k += 1
+                self.a_matrix[k][i] -= min_val
+                self.b_matrix[k][j] -= min_val
+
+                if min_val != 0:
+                    self.a_matrix.append(self.a_matrix[k][:])
+                    self.b_matrix.append(self.b_matrix[k][:])
+                    k += 1
 
     def potentials(self):
         row_num = len(self.matrix)
