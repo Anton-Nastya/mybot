@@ -80,7 +80,7 @@ class NW_method:
         font = ImageFont.truetype("calibri.ttf", size=20)
         font_price = ImageFont.truetype("calibri.ttf", size=15)
 
-        padding = 7
+        padding = 6
 
         draw.text((padding, padding), "NW", font=font, fill='black')
 
