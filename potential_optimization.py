@@ -6,6 +6,7 @@ class Potential:
         self.message = message
         self.U = []
         self.V = []
+        print("")
 
     def potentials(self):
         row_num = len(self.matrix)
