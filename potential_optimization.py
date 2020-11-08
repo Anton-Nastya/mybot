@@ -15,7 +15,7 @@ class Potential:
 
         for i in range(row_num):
             for j in range(col_num):
-                self.matrix[i][j].sign = ''
+                self.matrix[i][j].set_default()
 
         for i in range(row_num):
             self.U.append('')
