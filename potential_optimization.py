@@ -8,6 +8,41 @@ class Potential:
         self.U = []
         self.V = []
 
+    def make_cycle(self, start):
+        cycle = [start]
+        row_num = len(self.matrix)
+        col_num = len(self.matrix[0])
+
+        i = start[0]
+        j = start[1]
+        horizontal = True
+
+        while cycle.count(start) != 2:
+            if horizontal:
+                j = (j + 1) % col_num
+            else:
+                i = (i + 1) % row_num
+
+            if (i, j) == start:
+                cycle.append((i, j))
+                continue
+
+            if self.matrix[i][j].capacity == 0:
+                continue
+
+            if (i, j) == cycle[-1]:
+                horizontal = not horizontal
+                cycle.pop()
+                continue
+
+            if not cycle:
+                return False
+
+            cycle.append((i, j))
+            horizontal = not horizontal
+
+        return cycle[:-1]
+
     def potentials(self):
         row_num = len(self.matrix)
         col_num = len(self.matrix[0])
@@ -65,29 +100,24 @@ class Potential:
             # ищем цикл
             i = min_i
             j = min_j
-            for n in range(row_num):
-                if self.matrix[n][j].capacity != 0:
-                    for m in range(col_num):
-                        if self.matrix[n][m].capacity != 0 and self.matrix[i][m].capacity != 0:
-                            cycle_min = self.matrix[i][j]  # клетка со значением 0 в цикле
-                            cycle_1 = self.matrix[n][j]
-                            cycle_2 = self.matrix[n][m]
-                            cycle_3 = self.matrix[i][m]
 
-                            cycle_min.sign = '+'
-                            cycle_2.sign = '+'
-                            cycle_1.sign = '-'
-                            cycle_3.sign = '-'
+            cycle = self.make_cycle((i, j))
+            if not cycle:
+                raise Exception
 
-                            # найдем минимальное значение из трех не нулевых
-                            min_cycle = min(cycle_1.capacity, cycle_3.capacity)
+            min_cycle = min([self.matrix[point[0]][point[1]].capacity for point in cycle[1::2]])
 
-                            cycle_min.capacity += min_cycle
-                            cycle_2.capacity += min_cycle
-                            cycle_1.capacity -= min_cycle
-                            cycle_3.capacity -= min_cycle
+            sign = '+'
+            for point in cycle:
+                self.matrix[point[0]][point[1]].sign = sign
+                if sign == '+':
+                    self.matrix[point[0]][point[1]].capacity += min_cycle
+                    sign = '-'
+                else:
+                    self.matrix[point[0]][point[1]].capacity -= min_cycle
+                    sign = '+'
 
-                            return True
+            return True
         else:
             # отрицательных дельт нет, задача оптимизирована
             return False
