@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
+
 class Potential:
     def __init__(self, matrix, message):
         self.matrix = matrix
@@ -17,10 +18,8 @@ class Potential:
             for j in range(col_num):
                 self.matrix[i][j].set_default()
 
-        for i in range(row_num):
-            self.U.append('')
-        for i in range(col_num):
-            self.V.append('')
+        self.U = [''] * row_num
+        self.V = [''] * col_num
         self.U[0] = 0
 
         # заполнение V и U
@@ -155,7 +154,8 @@ class Potential:
                 draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding), c_voln,
                           font=font_price,
                           fill='black')
-                draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * (i + 1) - padding * 2.5), sign, font=font_price,
+                draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * (i + 1) - padding * 2.5), sign,
+                          font=font_price,
                           fill='red')
 
         img.save(f"pictures/potentials{self.message.from_user.id}.png")
