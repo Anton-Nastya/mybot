@@ -43,6 +43,40 @@ class Potential:
 
         return cycle[:-1]
 
+    def find_u_v(self, row_num, col_num):
+        path = [(0, 0)]
+        i = 0
+        j = 0
+        vertical = True
+        self.U[0] = 0
+        if self.matrix[0][0].capacity != 0:
+            self.V[0] = self.matrix[0][0].price + self.U[0]
+
+        while self.U.count('') or self.V.count(''):
+            if vertical:
+                i = (i + 1) % row_num
+            else:
+                j = (j + 1) % col_num
+
+            if self.matrix[i][j].capacity == 0:
+                continue
+
+            if (i, j) == path[-1]:
+                vertical = not vertical
+                continue
+
+            if not path:
+                return False
+
+            if self.U[i] == '':
+                self.U[i] = self.V[j] - self.matrix[i][j].price
+            else:
+                self.V[j] = self.U[i] + self.matrix[i][j].price
+            path.append((i, j))
+            vertical = not vertical
+
+        return True
+
     def potentials(self):
         row_num = len(self.matrix)
         col_num = len(self.matrix[0])
@@ -58,7 +92,7 @@ class Potential:
         self.U[0] = 0
 
         # заполнение V и U
-        for i in range(row_num):
+        """for i in range(row_num):
             for j in range(col_num):
                 if self.matrix[i][j].capacity == 0:
                     continue
@@ -67,7 +101,9 @@ class Potential:
                 for k in range(row_num):
                     if self.matrix[k][j].capacity == 0 or self.U[k] != '':
                         continue
-                    self.U[k] = self.V[j] - self.matrix[k][j].price
+                    self.U[k] = self.V[j] - self.matrix[k][j].price"""
+        if not self.find_u_v(row_num, col_num):
+            raise Exception
 
         # нахождение с c волной
         for i in range(row_num):
