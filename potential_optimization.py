@@ -48,7 +48,6 @@ class Potential:
         i = 0
         j = 0
         vertical = True
-        self.U[0] = 0
         if self.matrix[0][0].capacity != 0:
             self.V[0] = self.matrix[0][0].price + self.U[0]
 
@@ -92,16 +91,6 @@ class Potential:
         self.U[0] = 0
 
         # заполнение V и U
-        """for i in range(row_num):
-            for j in range(col_num):
-                if self.matrix[i][j].capacity == 0:
-                    continue
-                self.V[j] = self.matrix[i][j].price + self.U[i]
-
-                for k in range(row_num):
-                    if self.matrix[k][j].capacity == 0 or self.U[k] != '':
-                        continue
-                    self.U[k] = self.V[j] - self.matrix[k][j].price"""
         if not self.find_u_v(row_num, col_num):
             raise Exception
 
