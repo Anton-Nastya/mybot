@@ -3,6 +3,7 @@ import json
 from privilege_checker import privilege_check
 from building_plan_methods.nwcorner import NW_method
 from building_plan_methods.potential_optimization import Potential
+from building_plan_methods_E.potential_optimizationE import PotentialE
 from building_plan_methods_E.nwcornerE import NW_methodE
 from telebot import types
 
@@ -71,14 +72,29 @@ def start_nwcornerE(message):
 
 
 def nwcornerE_body(message):
+    try:
         method = NW_methodE(message.text, bot, message)
-        method.build_matrix()
-        #optimization = Potential(method.build_matrix(), message)
+        optimization = PotentialE(method.build_matrix(), message)
         with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
-
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
+    except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
+    else:
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                # optimization.table_potentials()
+                with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+        except:
+            optimization.table_potentials()
+            with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
+            bot.send_message(message.from_user.id,
+                             "Вырожденный план. Для использования метода потенциалов \
+                             воспользуйтесь построением плана с помощью Е-метода")
 
 
 @bot.message_handler(commands=['nwcorner'])
@@ -91,7 +107,7 @@ def start_nwcorner(message):
 
 def nwcorner_body(message):
     try:
-        method = NW_methodE(message.text, bot, message)
+        method = NW_method(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
