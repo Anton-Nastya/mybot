@@ -136,15 +136,22 @@ class Potential:
             for point in cycle:
                 self.matrix[point[0]][point[1]].sign = sign
                 if sign == '+':
-                    self.matrix[point[0]][point[1]].capacity += min_cycle
                     sign = '-'
                 else:
-                    self.matrix[point[0]][point[1]].capacity -= min_cycle
                     sign = '+'
+
+            self.table_potentials()
+
+            for point in cycle:
+                if self.matrix[point[0]][point[1]].sign == '+':
+                    self.matrix[point[0]][point[1]].capacity += min_cycle
+                else:
+                    self.matrix[point[0]][point[1]].capacity -= min_cycle
 
             return True
         else:
             # отрицательных дельт нет, задача оптимизирована
+            self.table_potentials()
             return False
 
     def table_potentials(self):

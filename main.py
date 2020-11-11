@@ -83,13 +83,17 @@ def nwcorner_body(message):
             optimize = True
             while optimize:
                 optimize = optimization.potentials()
-                optimization.table_potentials()
+                #optimization.table_potentials()
                 with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
                     bot.send_photo(message.from_user.id, photo=pic)
         except:
+            optimization.table_potentials()
+            with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
                              воспользуйтесь построением плана с помощью Е-метода")
+
 
 
 @bot.message_handler(commands=['grant'])
