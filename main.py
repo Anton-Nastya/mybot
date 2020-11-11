@@ -1,8 +1,9 @@
 import telebot
 import json
 from privilege_checker import privilege_check
-from nwcorner import NW_method
-from potential_optimization import Potential
+from building_plan_methods.nwcorner import NW_method
+from building_plan_methods.potential_optimization import Potential
+from building_plan_methods_E.nwcornerE import NW_methodE
 from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
@@ -61,6 +62,25 @@ def start_work(message):
     bot.send_message(message.from_user.id, message_text)
 
 
+@bot.message_handler(commands=['nwcornerE'])
+@privilege_check(bot)
+def start_nwcornerE(message):
+    bot.send_message(message.from_user.id, "Введите матрицу стоимости")
+
+    bot.register_next_step_handler(message, nwcornerE_body)
+
+
+def nwcornerE_body(message):
+        method = NW_methodE(message.text, bot, message)
+        method.build_matrix()
+        #optimization = Potential(method.build_matrix(), message)
+        with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
+
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
+
+
 @bot.message_handler(commands=['nwcorner'])
 @privilege_check(bot)
 def start_nwcorner(message):
@@ -71,7 +91,7 @@ def start_nwcorner(message):
 
 def nwcorner_body(message):
     try:
-        method = NW_method(message.text, bot, message)
+        method = NW_methodE(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
@@ -83,7 +103,7 @@ def nwcorner_body(message):
             optimize = True
             while optimize:
                 optimize = optimization.potentials()
-                #optimization.table_potentials()
+                # optimization.table_potentials()
                 with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
                     bot.send_photo(message.from_user.id, photo=pic)
         except:
@@ -93,7 +113,6 @@ def nwcorner_body(message):
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
                              воспользуйтесь построением плана с помощью Е-метода")
-
 
 
 @bot.message_handler(commands=['grant'])
