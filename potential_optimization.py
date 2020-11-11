@@ -64,7 +64,7 @@ class Potential:
                 vertical = not vertical
                 continue
 
-            if not path:
+            if path.count(path[-1]) > 2:
                 return False
 
             if self.U[i] == '':
