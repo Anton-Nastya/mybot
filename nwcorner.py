@@ -68,7 +68,6 @@ class NW_method:
         font_price = ImageFont.truetype("calibri.ttf", size=15)
 
         padding = 6
-        print(padding)
 
         draw.text((padding, padding), "NW", font=font, fill='black')
 
