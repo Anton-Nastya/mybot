@@ -43,7 +43,7 @@ class NW_method(Method):
                 self.matrix[i][j].capacity = min_val
                 self.a_matrix[k][i] -= min_val
                 self.b_matrix[k][j] -= min_val
-
+                
                 if min_val != 0:
                     self.a_matrix.append(self.a_matrix[k][:])
                     self.b_matrix.append(self.b_matrix[k][:])
