@@ -28,7 +28,7 @@ class PotentialE:
                 cycle.append((i, j))
                 continue
 
-            if self.matrix[i][j].capacity == 0 and self.matrix[i][j].E:
+            if self.matrix[i][j].capacity == 0 and self.matrix[i][j].E == 0:
                 continue
 
             if (i, j) == cycle[-1]:
@@ -48,7 +48,7 @@ class PotentialE:
         path = [(0, 0)]
         i = 0
         j = 0
-        vertical = True
+        vertical = False
         if self.matrix[0][0].capacity != 0 or self.matrix[0][0].E != 0:
             self.V[0] = self.matrix[0][0].price + self.U[0]
 
@@ -156,9 +156,10 @@ class PotentialE:
 
             self.table_potentials()
 
+            min_cap = self.matrix[min_cycle[0]][min_cycle[1]].capacity
+            min_E = self.matrix[min_cycle[0]][min_cycle[1]].E
+
             for point in cycle:
-                min_cap = self.matrix[min_cycle[0]][min_cycle[1]].capacity
-                min_E = self.matrix[min_cycle[0]][min_cycle[1]].E
                 if self.matrix[point[0]][point[1]].sign == '+':
                     self.matrix[point[0]][point[1]].capacity += min_cap
                     self.matrix[point[0]][point[1]].E += min_E

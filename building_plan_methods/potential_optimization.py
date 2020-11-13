@@ -47,7 +47,7 @@ class Potential:
         path = [(0, 0)]
         i = 0
         j = 0
-        vertical = True
+        vertical = False
         if self.matrix[0][0].capacity != 0:
             self.V[0] = self.matrix[0][0].price + self.U[0]
 
