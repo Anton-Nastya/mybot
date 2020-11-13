@@ -63,46 +63,15 @@ def start_work(message):
     bot.send_message(message.from_user.id, message_text)
 
 
-@bot.message_handler(commands=['nwcornerE'])
-@privilege_check(bot)
-def start_nwcornerE(message):
-    bot.send_message(message.from_user.id, "Введите матрицу стоимости")
-
-    bot.register_next_step_handler(message, nwcornerE_body)
-
-
-def nwcornerE_body(message):
-    try:
-        method = NW_methodE(message.text, bot, message)
-        optimization = PotentialE(method.build_matrix(), message)
-        with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
-            bot.send_photo(message.from_user.id, photo=pic)
-        bot.send_message(message.from_user.id, "План построен")
-    except:
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
-    else:
-        try:
-            optimize = True
-            while optimize:
-                optimize = optimization.potentials()
-                # optimization.table_potentials()
-                with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
-                    bot.send_photo(message.from_user.id, photo=pic)
-        except:
-            optimization.table_potentials()
-            with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
-                bot.send_photo(message.from_user.id, photo=pic)
-            bot.send_message(message.from_user.id,
-                             "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода")
-
-
-@bot.message_handler(commands=['nwcorner'])
+@bot.message_handler(commands=['nwcorner', 'nwcornerE'])
 @privilege_check(bot)
 def start_nwcorner(message):
     bot.send_message(message.from_user.id, "Введите матрицу стоимости")
 
-    bot.register_next_step_handler(message, nwcorner_body)
+    if message.text == '/nwcorner':
+        bot.register_next_step_handler(message, nwcorner_body)
+    else:
+        bot.register_next_step_handler(message, nwcornerE_body)
 
 
 def nwcorner_body(message):
@@ -125,6 +94,31 @@ def nwcorner_body(message):
         except:
             optimization.table_potentials()
             with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
+            bot.send_message(message.from_user.id,
+                             "Вырожденный план. Для использования метода потенциалов \
+                             воспользуйтесь построением плана с помощью Е-метода")
+
+def nwcornerE_body(message):
+    try:
+        method = NW_methodE(message.text, bot, message)
+        optimization = PotentialE(method.build_matrix(), message)
+        with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
+    except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
+    else:
+
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                # optimization.table_potentials()
+                with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+
+            optimization.table_potentials()
+            with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
                 bot.send_photo(message.from_user.id, photo=pic)
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \

@@ -1,17 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-
-def sorting(num1, num2):
-    num1 = num1.copy()
-    num2 = num2.copy()
-    if num1[0] > num2[0]:
-        return num1[0]
-    elif num1[0] < num2[0]:
-        return num2[0]
-    else:
-        if num1[1] >= num2[1]:
-            return num1[1]
-        else:
-            return num2[1]
+from building_plan_methods_E.parent_methodE import str_E
 
 
 class PotentialE:
@@ -89,6 +77,19 @@ class PotentialE:
 
         return True
 
+    def sorting(self, num):
+        cell = self.matrix[num[0]][num[1]]
+
+        whole = cell.capacity
+
+        if cell.E < 0:
+            remain = (1000 + cell.E) / 1000
+            whole -= 1
+        else:
+            remain = cell.E / 1000
+
+        return whole + remain
+
     def potentials(self):
         row_num = len(self.matrix)
         col_num = len(self.matrix[0])
@@ -143,7 +144,7 @@ class PotentialE:
             if not cycle:
                 raise Exception
 
-            min_cycle = sorted(cycle[1::2], key=sorting)[0]
+            min_cycle = sorted(cycle[1::2], key=self.sorting)[0]
 
             sign = '+'
             for point in cycle:
@@ -156,10 +157,14 @@ class PotentialE:
             self.table_potentials()
 
             for point in cycle:
+                min_cap = self.matrix[min_cycle[0]][min_cycle[1]].capacity
+                min_E = self.matrix[min_cycle[0]][min_cycle[1]].E
                 if self.matrix[point[0]][point[1]].sign == '+':
-                    self.matrix[point[0]][point[1]].capacity += min_cycle
+                    self.matrix[point[0]][point[1]].capacity += min_cap
+                    self.matrix[point[0]][point[1]].E += min_E
                 else:
-                    self.matrix[point[0]][point[1]].capacity -= min_cycle
+                    self.matrix[point[0]][point[1]].capacity -= min_cap
+                    self.matrix[point[0]][point[1]].E -= min_E
 
             return True
         else:
@@ -168,7 +173,7 @@ class PotentialE:
             return False
 
     def table_potentials(self):
-        cell_size = (60, 40)
+        cell_size = (80, 40)
 
         row_num = len(self.matrix) + 2
         col_num = len(self.matrix[0]) + 2
