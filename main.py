@@ -8,6 +8,8 @@ from building_plan_methods_E.nwcornerE import NW_methodE
 from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
+# debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
+# main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
 
 
 def command_choice(command):
