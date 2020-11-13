@@ -65,6 +65,23 @@ def start_work(message):
     bot.send_message(message.from_user.id, message_text)
 
 
+@bot.message_handler(commands=['minimal_cost', 'minimal_costE'])
+@privilege_check(bot)
+def start_mincost(message):
+    bot.send_message(message.from_user.id, "Введите матрицу стоимости")
+
+    if message.text == '/minimal_cost':
+        bot.register_next_step_handler(message, mincost_body)
+    else:
+        bot.register_next_step_handler(message, mincostE_body)
+
+
+def mincost_body(message):
+    pass
+
+def mincostE_body(message):
+    pass
+
 @bot.message_handler(commands=['nwcorner', 'nwcornerE'])
 @privilege_check(bot)
 def start_nwcorner(message):
