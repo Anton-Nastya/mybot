@@ -1,7 +1,7 @@
 from building_plan_methods.parent_method import Method
 
 
-class NW_method(Method):
+class Min_cost_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'minimal_cost'

@@ -2,12 +2,15 @@ import telebot
 import json
 from privilege_checker import privilege_check
 from building_plan_methods.nwcorner import NW_method
+from building_plan_methods.min_cost import Min_cost_method
 from building_plan_methods.potential_optimization import Potential
 from building_plan_methods_E.potential_optimizationE import PotentialE
 from building_plan_methods_E.nwcornerE import NW_methodE
 from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
+
+
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
 # main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
 
@@ -77,10 +80,33 @@ def start_mincost(message):
 
 
 def mincost_body(message):
-    pass
+    try:
+        method = Min_cost_method(message.text, bot, message)
+        optimization = Potential(method.build_matrix(), message)
+        with open(f"pictures/minimal_cost{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
+    except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
+    else:
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+        except:
+            optimization.table_potentials()
+            with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
+            bot.send_message(message.from_user.id,
+                             "Вырожденный план. Для использования метода потенциалов \
+                             воспользуйтесь построением плана с помощью Е-метода")
+
 
 def mincostE_body(message):
     pass
+
 
 @bot.message_handler(commands=['nwcorner', 'nwcornerE'])
 @privilege_check(bot)
@@ -107,7 +133,6 @@ def nwcorner_body(message):
             optimize = True
             while optimize:
                 optimize = optimization.potentials()
-                # optimization.table_potentials()
                 with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
                     bot.send_photo(message.from_user.id, photo=pic)
         except:
@@ -117,6 +142,7 @@ def nwcorner_body(message):
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
                              воспользуйтесь построением плана с помощью Е-метода")
+
 
 def nwcornerE_body(message):
     try:
@@ -129,18 +155,18 @@ def nwcornerE_body(message):
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
     else:
 
-            optimize = True
-            while optimize:
-                optimize = optimization.potentials()
-                # optimization.table_potentials()
-                with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
-                    bot.send_photo(message.from_user.id, photo=pic)
-
-            optimization.table_potentials()
+        optimize = True
+        while optimize:
+            optimize = optimization.potentials()
+            # optimization.table_potentials()
             with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
                 bot.send_photo(message.from_user.id, photo=pic)
-            bot.send_message(message.from_user.id,
-                             "Вырожденный план. Для использования метода потенциалов \
+
+        optimization.table_potentials()
+        with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id,
+                         "Вырожденный план. Для использования метода потенциалов \
                              воспользуйтесь построением плана с помощью Е-метода")
 
 
