@@ -82,9 +82,9 @@ def start_mincost(message):
 
 def mincost_body(message):
     try:
-        method = Min_cost_methodE(message.text, bot, message)
+        method = Min_cost_method(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
-        with open(f"pictures/minimal_costE{message.from_user.id}.png", "rb") as pic:
+        with open(f"pictures/minimal_cost{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
     except:
@@ -109,7 +109,7 @@ def mincostE_body(message):
     try:
         method = Min_cost_methodE(message.text, bot, message)
         optimization = PotentialE(method.build_matrix(), message)
-        with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
+        with open(f"pictures/minimal_costE{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
     except:
@@ -119,7 +119,6 @@ def mincostE_body(message):
             optimize = True
             while optimize:
                 optimize = optimization.potentials()
-                # optimization.table_potentials()
                 with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
                     bot.send_photo(message.from_user.id, photo=pic)
         finally:
