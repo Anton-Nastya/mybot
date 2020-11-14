@@ -16,7 +16,6 @@ def get_min_value(num1, num2):
             return num1
 
 
-
 class NW_methodE(MethodE):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
@@ -46,6 +45,7 @@ class NW_methodE(MethodE):
                     self.a_matrix.append(copy.deepcopy(self.a_matrix[k]))
                     self.b_matrix.append(copy.deepcopy(self.b_matrix[k]))
                     k += 1
+
 
     def build_matrix(self):
         self.solution_of_matrix()
