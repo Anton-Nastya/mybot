@@ -60,12 +60,13 @@ class Potential:
             if self.matrix[i][j].capacity == 0:
                 continue
 
-            if (i, j) == path[-1]:
-                vertical = not vertical
-                continue
-
             if path.count(path[-1]) > 2:
                 return False
+
+            if (i, j) == path[-1]:
+                path.append((i, j))
+                vertical = not vertical
+                continue
 
             if self.U[i] == '':
                 self.U[i] = self.V[j] - self.matrix[i][j].price

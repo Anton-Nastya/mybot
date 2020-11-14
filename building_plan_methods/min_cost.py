@@ -20,9 +20,9 @@ class Min_cost_method(Method):
             max_val = -1
             for i in range(row_num):
                 for j in range(col_num):
-                    if self.matrix[i][j].price < min_price and min(self.stock[i], self.proposal[j]) > max_val:
+                    if self.matrix[i][j].price <= min_price and min(self.a_matrix[k][i], self.b_matrix[k][j]) >= max_val and self.matrix[i][j].capacity == -1:
                         min_price = self.matrix[i][j].price
-                        max_val = min(self.stock[i], self.proposal[j])
+                        max_val = min(self.a_matrix[k][i], self.b_matrix[k][j])
                         min_i = i
                         min_j = j
 
@@ -30,12 +30,15 @@ class Min_cost_method(Method):
                 self.matrix[min_i][min_j].capacity = max_val
 
                 if max_val != 0:
-                    k += 1
+                    self.a_matrix[k][min_i] -= max_val
+                    self.b_matrix[k][min_j] -= max_val
+
                     self.a_matrix.append(self.a_matrix[k][:])
                     self.b_matrix.append(self.b_matrix[k][:])
 
-                    self.a_matrix[k][i] -= max_val
-                    self.b_matrix[k][j] -= max_val
+                    k += 1
+
+
 
         '''for i in range(row_num):
             for j in range(col_num):
