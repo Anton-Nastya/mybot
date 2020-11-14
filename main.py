@@ -88,7 +88,7 @@ def mincost_body(message):
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
     except:
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /minimal_cost")
     else:
         try:
             optimize = True
@@ -102,7 +102,7 @@ def mincost_body(message):
                 bot.send_photo(message.from_user.id, photo=pic)
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода")
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /minimal_costE)")
 
 
 def mincostE_body(message):
@@ -113,7 +113,7 @@ def mincostE_body(message):
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
     except:
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /minimal_costE")
     else:
         try:
             optimize = True
@@ -157,7 +157,7 @@ def nwcorner_body(message):
                 bot.send_photo(message.from_user.id, photo=pic)
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода")
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /nwcornerE)")
 
 
 def nwcornerE_body(message):
@@ -179,6 +179,7 @@ def nwcornerE_body(message):
                     bot.send_photo(message.from_user.id, photo=pic)
         finally:
             bot.send_message(message.from_user.id, "План оптимизирован")
+
 
 @bot.message_handler(commands=['grant'])
 @privilege_check(bot)

@@ -48,17 +48,19 @@ class Min_cost_methodE(MethodE):
             if min_price != 200_000:
                 self.matrix[min_i][min_j].capacity = max_val[0]
                 self.matrix[min_i][min_j].E = max_val[1]
-                if max_val != [0, 0]:
-                    self.a_matrix[k][i][0] -= max_val[0]
-                    self.a_matrix[k][i][1] -= max_val[1]
 
-                    self.b_matrix[k][j][0] -= max_val[0]
-                    self.b_matrix[k][j][1] -= max_val[1]
+                if max_val != [0, 0]:
+                    self.a_matrix[k][min_i][0] -= max_val[0]
+                    self.a_matrix[k][min_i][1] -= max_val[1]
+
+                    self.b_matrix[k][min_j][0] -= max_val[0]
+                    self.b_matrix[k][min_j][1] -= max_val[1]
 
                     self.a_matrix.append(copy.deepcopy(self.a_matrix[k]))
                     self.b_matrix.append(copy.deepcopy(self.b_matrix[k]))
 
                     k += 1
+
 
 
     def build_matrix(self):
