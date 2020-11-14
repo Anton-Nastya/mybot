@@ -231,9 +231,9 @@ class PotentialE:
                           font=font_price,
                           fill='black')
 
-                draw.text((cell_size[0] * j + padding, cell_size[1] * (i + 1) - padding * 2.5), delta, font=font_price,
+                draw.text((cell_size[0] * j + padding, cell_size[1] * (i + 1) - padding * 2.5), c_voln, font=font_price,
                           fill='black')
-                draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding), c_voln,
+                draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding), delta,
                           font=font_price,
                           fill='black')
                 draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * (i + 1) - padding * 2.5), sign,
