@@ -6,6 +6,7 @@ from building_plan_methods.min_cost import Min_cost_method
 from building_plan_methods.potential_optimization import Potential
 from building_plan_methods_E.potential_optimizationE import PotentialE
 from building_plan_methods_E.nwcornerE import NW_methodE
+from building_plan_methods_E.min_costE import Min_cost_methodE
 from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
@@ -81,9 +82,9 @@ def start_mincost(message):
 
 def mincost_body(message):
     try:
-        method = Min_cost_method(message.text, bot, message)
+        method = Min_cost_methodE(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
-        with open(f"pictures/minimal_cost{message.from_user.id}.png", "rb") as pic:
+        with open(f"pictures/minimal_costE{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
     except:
@@ -105,8 +106,24 @@ def mincost_body(message):
 
 
 def mincostE_body(message):
-    pass
-
+    try:
+        method = Min_cost_methodE(message.text, bot, message)
+        optimization = PotentialE(method.build_matrix(), message)
+        with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
+    except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
+    else:
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                # optimization.table_potentials()
+                with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+        finally:
+            bot.send_message(message.from_user.id, "План оптимизирован")
 
 @bot.message_handler(commands=['nwcorner', 'nwcornerE'])
 @privilege_check(bot)
@@ -154,21 +171,15 @@ def nwcornerE_body(message):
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcornerE")
     else:
-
-        optimize = True
-        while optimize:
-            optimize = optimization.potentials()
-            # optimization.table_potentials()
-            with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
-                bot.send_photo(message.from_user.id, photo=pic)
-
-        optimization.table_potentials()
-        with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
-            bot.send_photo(message.from_user.id, photo=pic)
-        bot.send_message(message.from_user.id,
-                         "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода")
-
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                # optimization.table_potentials()
+                with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+        finally:
+            bot.send_message(message.from_user.id, "План оптимизирован")
 
 @bot.message_handler(commands=['grant'])
 @privilege_check(bot)
