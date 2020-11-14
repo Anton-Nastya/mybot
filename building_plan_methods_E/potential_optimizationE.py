@@ -171,6 +171,9 @@ class PotentialE:
             return True
         else:
             # отрицательных дельт нет, задача оптимизирована
+            for line in self.matrix:
+                for cell in line:
+                    cell.E = 0
             self.table_potentials()
             return False
 
