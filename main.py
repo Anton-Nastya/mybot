@@ -87,7 +87,7 @@ def mincost_body(message):
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
     except:
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /minimal_cost")
     else:
         try:
             optimize = True
@@ -167,7 +167,7 @@ def nwcornerE_body(message):
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id,
                          "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода")
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /nwcornerE)")
 
 
 @bot.message_handler(commands=['grant'])
