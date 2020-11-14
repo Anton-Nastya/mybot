@@ -101,7 +101,7 @@ def mincost_body(message):
                 bot.send_photo(message.from_user.id, photo=pic)
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода")
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /minimal_costE)")
 
 
 def mincostE_body(message):
