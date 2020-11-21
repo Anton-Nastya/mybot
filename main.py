@@ -87,7 +87,8 @@ def start_hung_m(message):
 
 def hung_m_body(message):
         method = HungM_method(message.text, bot, message)
-        with open(f"pictures/hungarian_m{message.from_user.id}.png", "rb") as pic:
+        search = Potential(method.build_matrix(), message)
+        with open(f"pictures/hung_matrix{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "Оптимальный выбор сделан")
 """except:

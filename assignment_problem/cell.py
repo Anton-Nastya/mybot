@@ -6,4 +6,5 @@ class Cell:
 
 
     def set_default(self):
-        self.sign = ''
+        self.sign = '*'
+        self.index = '1'
