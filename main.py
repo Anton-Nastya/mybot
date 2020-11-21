@@ -1,12 +1,17 @@
 import telebot
 import json
 from privilege_checker import privilege_check
+
 from building_plan_methods.nwcorner import NW_method
 from building_plan_methods.min_cost import Min_cost_method
 from building_plan_methods.potential_optimization import Potential
+
 from building_plan_methods_E.potential_optimizationE import PotentialE
 from building_plan_methods_E.nwcornerE import NW_methodE
 from building_plan_methods_E.min_costE import Min_cost_methodE
+
+from assignment_problem.hungarian_matrix import HungM_method
+
 from telebot import types
 
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
@@ -69,6 +74,35 @@ def start_work(message):
     bot.send_message(message.from_user.id, message_text)
 
 
+@bot.message_handler(commands=['hung_matrix', 'hung_graph'])
+@privilege_check(bot)
+def start_hung_m(message):
+    bot.send_message(message.from_user.id, "Введите матрицу")
+
+    if message.text == '/hung_matrix':
+        bot.register_next_step_handler(message, hung_m_body)
+    else:
+        bot.register_next_step_handler(message, hung_g_body)
+
+
+def hung_m_body(message):
+        method = HungM_method(message.text, bot, message)
+        with open(f"pictures/hungarian_m{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "Оптимальный выбор сделан")
+"""except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
+    else:
+        try:
+            pass
+        except:
+            pass"""
+
+
+def hung_g_body(message):
+    pass
+
+
 @bot.message_handler(commands=['minimal_cost', 'minimal_costE'])
 @privilege_check(bot)
 def start_mincost(message):
@@ -123,6 +157,7 @@ def mincostE_body(message):
                     bot.send_photo(message.from_user.id, photo=pic)
         finally:
             bot.send_message(message.from_user.id, "План оптимизирован")
+
 
 @bot.message_handler(commands=['nwcorner', 'nwcornerE'])
 @privilege_check(bot)
