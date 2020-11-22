@@ -43,6 +43,7 @@ class Potential:
 
         return cycle[:-1]
 
+
     def find_u_v(self, row_num, col_num):
         path = [(0, 0)]
         i = 0
@@ -76,6 +77,7 @@ class Potential:
             vertical = not vertical
 
         return True
+
 
     def potentials(self):
         row_num = len(self.matrix)
@@ -154,6 +156,7 @@ class Potential:
             # отрицательных дельт нет, задача оптимизирована
             self.table_potentials()
             return False
+
 
     def table_potentials(self):
         cell_size = (60, 40)

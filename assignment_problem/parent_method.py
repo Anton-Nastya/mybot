@@ -28,7 +28,26 @@ class Method:
             self.matrix.append(row)
 
 
-    def _create_table(self):
+    def set_default(self):
+        col_num = len(self.matrix)
+
+        self.marks_hor.clear()
+        self.marks_vert.clear()
+        self.reduct_hor.clear()
+        self.reduct_vert.clear()
+        self.index_hor.clear()
+        self.index_vert.clear()
+
+        for i in range(0, col_num):
+            self.marks_hor.append('')
+            self.marks_vert.append('')
+            self.reduct_hor.append('')
+            self.reduct_vert.append('')
+            self.index_hor.append('')
+            self.index_vert.append('')
+
+
+    def _create_table(self, text, state=''):
         cell_size = 40
         frame_width = cell_size * 2
         col_num = len(self.matrix)
@@ -44,10 +63,10 @@ class Method:
                         frame_width + i * cell_size, m_side_size + frame_width), width=0, fill='black') # vert
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
-        self._fill_table(cell_size, col_num, frame_width)
+        self._fill_table(cell_size, col_num, frame_width, text, state)
 
 
-    def _fill_table(self, cell_size, col_num, frame_width):
+    def _fill_table(self, cell_size, col_num, frame_width, text, state):
         m_side_size = cell_size * col_num
 
         img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
@@ -57,6 +76,9 @@ class Method:
         font_index = ImageFont.truetype("calibri.ttf", size=15)
 
         padding = 6     # отступ
+
+        draw.text((5, 5), text, font=font_index, fill='black')
+        draw.text((2 * frame_width + m_side_size - font.getsize(state)[0] - 2, 5), state, font=font, fill='black')
 
         for i in range(0, col_num):
             for j in range(0, col_num):
@@ -114,19 +136,19 @@ class Method:
 
             draw.text((frame_width + cell_size * i + (cell_size - index_hor_size[0] - 5),
                        frame_width - index_hor_size[1] - 5),
-                      index_hor_num, font=font_index, fill='black')
+                      index_hor_num, font=font_index, fill='black')                                 # заполнение горизонтальных индексов
 
             draw.text((frame_width + cell_size + m_side_size - index_vert_size[0] - 7,
                        frame_width + cell_size * i + (cell_size - index_vert_size[1]) - 3),
-                      index_vert_num, font=font_index, fill='black')
+                      index_vert_num, font=font_index, fill='black')                                # заполнение вертикальных индексов
 
 
             draw.text((frame_width + cell_size * i + (cell_size - marks_hor_size[0]) / 2,
                         frame_width - (cell_size + marks_hor_size[1]) / 2),
-                      marks_hor_num, font=font, fill='black')
+                      marks_hor_num, font=font, fill='black')                                       # заполнение заполнение плюсов горизонтальных
 
             draw.text((frame_width + m_side_size + (cell_size - marks_vert_size[1]) / 2 - 5,
                        frame_width + cell_size * i + (cell_size - marks_vert_size[1]) / 2 - 2),
-                      marks_vert_num, font=font, fill='black')
+                      marks_vert_num, font=font, fill='black')                                      # заполнение плюсов вертикальных
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")

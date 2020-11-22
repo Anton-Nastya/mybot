@@ -86,18 +86,42 @@ def start_hung_m(message):
 
 
 def hung_m_body(message):
+    try:
         method = HungM_method(message.text, bot, message)
-        search = Potential(method.build_matrix(), message)
+        method.build_matrix()
+    except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
+        exit()
+
+    with open(f"pictures/hung_matrix{message.from_user.id}.png", "rb") as pic:
+        bot.send_photo(message.from_user.id, photo=pic)
+
+    algorithm = {'S': start(message),
+                'R1': method.col_reduction_r1,
+                'R2': method.row_reduction_r2,
+                'P': method.preparatory_stage_p,
+                'F1': method.select_optimal_appointments_f1,
+                'F2': method.output_sum_f2,
+                'A1': method.a1,
+                'A2': method.a2,
+                'A3': method.a3}
+
+    status = 'R1'
+    while status != 'F':
+        print(algorithm[status].__name__, end=' return ')
+        status = algorithm[status]()
         with open(f"pictures/hung_matrix{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
-        bot.send_message(message.from_user.id, "Оптимальный выбор сделан")
-"""except:
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
-    else:
-        try:
-            pass
-        except:
-            pass"""
+        print(status)
+        # status = 'F'
+
+    bot.send_message(message.from_user.id, "Оптимальный выбор сделан")
+
+
+def start(message):
+
+
+    return 'R1'
 
 
 def hung_g_body(message):
