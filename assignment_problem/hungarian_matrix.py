@@ -1,6 +1,8 @@
 from assignment_problem.parent_method import Method
 import numpy    # numpy==1.19.3
 
+iteration = 1
+
 
 class HungM_method(Method):
     def __init__(self, matrix, bot, message):
@@ -10,7 +12,9 @@ class HungM_method(Method):
     # --------------------------------------Построение введенной матрицы------------------------------------------------
     def build_matrix(self):
         self.set_default()
-        self._create_table('Вы ввели:')
+        self.create_empty_formate()
+        self._create_table('ВЫ ВВЕЛИ:')
+        self.create_formate((0, 0))
 
         return self.matrix
 
@@ -26,14 +30,20 @@ class HungM_method(Method):
 
         return minimum
 
-    def reduction(self, matrix, reduct_matrix):
-        num_col = len(self.matrix)
 
+    def reduction(self, matrix, reduct_matrix, clear_matrix, text, position):
+        num_col = len(self.matrix)
         del reduct_matrix[:]
 
         for i in range(0, num_col):
             minimum = self.search_min(matrix[i])
             reduct_matrix.append(minimum)
+
+        del clear_matrix[:]
+        for i in range(0, num_col):
+            clear_matrix.append('')
+        self._create_table(text)
+        self.create_formate(position)
 
         for i in range(0, num_col):
             for j in range(0, num_col):
@@ -43,16 +53,22 @@ class HungM_method(Method):
 
 
     def col_reduction_r1(self):
-        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor)
+        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor, self.reduct_vert,
+                                    'РЕДУКЦИЯ ПО СТОЛБЦАМ', (0, 1))
         self.matrix = numpy.rot90(rot_matrix).tolist()
-        self._create_table('Редукция матрицы по столбцам')
 
         return 'R2'
 
+
     def row_reduction_r2(self):
+        self.matrix = self.reduction(self.matrix, self.reduct_vert, self.reduct_hor,
+                                     'РЕДУКЦИЯ ПО СТРОКАМ', (0, 2))
+        return 'R3'
+
+    def reduction_r3(self):
         self.set_default()
-        self.matrix = self.reduction(self.matrix, self.reduct_vert)
-        self._create_table('Редукция матрицы по строкам')
+        self._create_table('')
+        self.create_formate((0, 3))
 
         return 'P'
 
@@ -68,6 +84,7 @@ class HungM_method(Method):
 
 
     def preparatory_stage_p(self):
+        global iteration
         num_col = len(self.matrix)
         num_independent_zer = 0
 
@@ -82,18 +99,13 @@ class HungM_method(Method):
                         num_independent_zer += 1
                         break
 
-        self._create_table('Начало новой итерации')
+        self._create_table(f'ИТЕРАЦИЯ {iteration}')
+        self.create_formate((iteration, 1))
+        iteration += 1
 
         if num_independent_zer == num_col:
             return 'F1'
         return 'A1'
-
-
-    def select_optimal_appointments_f1(self):
-        pass
-
-    def output_sum_f2(self):
-        pass
 
     def a1(self):
         pass
@@ -102,5 +114,13 @@ class HungM_method(Method):
         pass
 
     def a3(self):
+        pass
+
+# -----------------------------------------------Выбор * и завершение---------------------------------------------------
+
+    def select_optimal_appointments_f1(self):
+        pass
+
+    def output_sum_f2(self):
         pass
 

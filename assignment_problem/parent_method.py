@@ -1,6 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
 
+cell_size = 40
+frame_width = cell_size * 2
 
 class Method:
     def __init__(self, matrix, bot, message):
@@ -47,9 +49,37 @@ class Method:
             self.index_vert.append('')
 
 
+    def create_empty_formate(self):
+        global cell_size
+        global frame_width
+        col_num = len(self.matrix)
+        picture_size = col_num * cell_size + 2 * frame_width
+        pic_in_height = 7
+        pic_in_width = 4
+
+        form = Image.new('RGBA', (pic_in_width * picture_size, pic_in_height * picture_size), 'white')
+        form.save(f"pictures/{self.name}_formate{self.message.from_user.id}.png")
+
+
+    def create_formate(self, position):
+        global cell_size
+        global frame_width
+        col_num = len(self.matrix)
+        picture_size = col_num * cell_size + 2 * frame_width
+        coordinates = [position[0] * picture_size,
+                       position[1] * picture_size]
+
+        form = Image.open(f"pictures/{self.name}_formate{self.message.from_user.id}.png")
+        img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
+
+        form.paste(img, (coordinates[0], coordinates[1]))
+
+        form.save(f"pictures/{self.name}_formate{self.message.from_user.id}.png")
+
+
     def _create_table(self, text, state=''):
-        cell_size = 40
-        frame_width = cell_size * 2
+        global cell_size
+        global frame_width
         col_num = len(self.matrix)
         m_side_size = cell_size * col_num
 
@@ -77,7 +107,7 @@ class Method:
 
         padding = 6     # отступ
 
-        draw.text((5, 5), text, font=font_index, fill='black')
+        draw.text((5, 5), f'     {text}', font=font, fill='black')
         draw.text((2 * frame_width + m_side_size - font.getsize(state)[0] - 2, 5), state, font=font, fill='black')
 
         for i in range(0, col_num):

@@ -87,18 +87,20 @@ def start_hung_m(message):
 
 def hung_m_body(message):
     try:
-        method = HungM_method(message.text, bot, message)
+        primary = method = HungM_method(message.text, bot, message)
+        primary.build_matrix()
         method.build_matrix()
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
         exit()
 
-    with open(f"pictures/hung_matrix{message.from_user.id}.png", "rb") as pic:
-        bot.send_photo(message.from_user.id, photo=pic)
+    with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
+        bot.send_document(message.from_user.id, pic)
 
     algorithm = {'S': start(message),
                 'R1': method.col_reduction_r1,
                 'R2': method.row_reduction_r2,
+                'R3': method.reduction_r3,
                 'P': method.preparatory_stage_p,
                 'F1': method.select_optimal_appointments_f1,
                 'F2': method.output_sum_f2,
@@ -110,8 +112,8 @@ def hung_m_body(message):
     while status != 'F':
         print(algorithm[status].__name__, end=' return ')
         status = algorithm[status]()
-        with open(f"pictures/hung_matrix{message.from_user.id}.png", "rb") as pic:
-            bot.send_photo(message.from_user.id, photo=pic)
+        with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
+            bot.send_document(message.from_user.id, pic)
         print(status)
         # status = 'F'
 
