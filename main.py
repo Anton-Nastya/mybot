@@ -14,8 +14,10 @@ from assignment_problem.hungarian_matrix import HungM_method
 
 from telebot import types
 
-bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
+method = ''
+primary = ''
 
+bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
 # main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
@@ -76,6 +78,7 @@ def start_work(message):
 
 @bot.message_handler(commands=['hung_matrix', 'hung_graph'])
 @privilege_check(bot)
+
 def start_hung_m(message):
     bot.send_message(message.from_user.id, "Введите матрицу")
 
@@ -86,8 +89,12 @@ def start_hung_m(message):
 
 
 def hung_m_body(message):
+    global method
+    global primary
     try:
-        primary = method = HungM_method(message.text, bot, message)
+        primary = HungM_method(message.text, bot, message)
+        method = HungM_method(message.text, bot, message)
+
         primary.build_matrix()
         method.build_matrix()
     except:
@@ -97,19 +104,18 @@ def hung_m_body(message):
     with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
         bot.send_document(message.from_user.id, pic)
 
-    algorithm = {'S': start(message),
-                'R1': method.col_reduction_r1,
+    algorithm = {'R1': method.col_reduction_r1,
                 'R2': method.row_reduction_r2,
                 'R3': method.reduction_r3,
                 'P': method.preparatory_stage_p,
-                'F1': method.select_optimal_appointments_f1,
-                'F2': method.output_sum_f2,
+                'F1': f1,
+                'F2': primary.output_sum_f2,
                 'A1': method.a1,
                 'A2': method.a2,
                 'A3': method.a3}
 
     status = 'R1'
-    while status != 'F':
+    while status != 'F2':
         print(algorithm[status].__name__, end=' return ')
         status = algorithm[status]()
         with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
@@ -117,13 +123,17 @@ def hung_m_body(message):
         print(status)
         # status = 'F'
 
-    bot.send_message(message.from_user.id, "Оптимальный выбор сделан")
+    bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
+    bot.send_message(message.from_user.id, "Задача решена")
 
 
-def start(message):
+def f1():
+    global method
+    global primary
 
+    method.select_optimal_appointments_f1(primary)
 
-    return 'R1'
+    return 'F2'
 
 
 def hung_g_body(message):
