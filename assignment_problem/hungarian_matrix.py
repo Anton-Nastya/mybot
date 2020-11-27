@@ -2,13 +2,14 @@ from assignment_problem.parent_method import Method
 import numpy  # numpy==1.19.3
 
 
+
+
 class HungM_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'hung_matrix'
 
     # --------------------------------------Построение введенной матрицы------------------------------------------------
-
     def build_matrix(self):
         self.set_default()
         self.create_empty_formate()
@@ -26,7 +27,6 @@ class HungM_method(Method):
                 minimum = list[i].capacity
 
         return minimum
-
 
     def reduction(self, matrix, reduct_matrix, clear_matrix, text, position):
         num_col = len(self.matrix)
@@ -48,14 +48,12 @@ class HungM_method(Method):
 
         return matrix
 
-
     def col_reduction_r1(self, iteration, row, mas):
         rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor, self.reduct_vert,
                                     'РЕДУКЦИЯ ПО СТОЛБЦАМ', (0, 1))
         self.matrix = numpy.rot90(rot_matrix).tolist()
 
         return 'R2', iteration, row + 1, mas
-
 
     def row_reduction_r2(self, iteration, row, mas):
         self.matrix = self.reduction(self.matrix, self.reduct_vert, self.reduct_hor,
