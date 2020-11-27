@@ -9,14 +9,15 @@ from building_plan_methods.potential_optimization import Potential
 from building_plan_methods_E.potential_optimizationE import PotentialE
 from building_plan_methods_E.nwcornerE import NW_methodE
 from building_plan_methods_E.min_costE import Min_cost_methodE
-from building_plan_methods.fogel import Fogel_method
 
 from assignment_problem.hungarian_matrix import HungM_method
 
 from telebot import types
 
-bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
+method = ''
+primary = ''
 
+bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
 # main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
@@ -87,6 +88,8 @@ def start_hung_m(message):
 
 
 def hung_m_body(message):
+    global method
+    global primary
     try:
         primary = HungM_method(message.text, bot, message)
         method = HungM_method(message.text, bot, message)
@@ -100,13 +103,13 @@ def hung_m_body(message):
             bot.send_document(message.from_user.id, pic)
 
         algorithm = {'R1': method.col_reduction_r1,
-                     'R2': method.row_reduction_r2,
-                     'P1': method.preparatory_stage_p1,
-                     'P2': method.search_for_col_with_ind_zeros_p2,
-                     'F1': method.select_optimal_appointments_f1,
-                     'A1': method.a1,
-                     'A2': method.a2,
-                     'A3': method.a3}
+                    'R2': method.row_reduction_r2,
+                    'P1': method.preparatory_stage_p1,
+                    'P2': method.search_for_col_with_ind_zeros_p2,
+                    'F1': method.select_optimal_appointments_f1,
+                    'A1': method.a1,
+                    'A2': method.a2,
+                    'A3': method.a3}
 
         status = 'R1'
         iteration = 0
@@ -123,6 +126,15 @@ def hung_m_body(message):
 
         bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
         bot.send_message(message.from_user.id, "Задача решена")
+
+
+def f1(iteration, row, mas):
+    global method
+    global primary
+
+    method.select_optimal_appointments_f1(primary)
+
+    return 'F2'
 
 
 def hung_g_body(message):
@@ -147,7 +159,6 @@ def mincost_body(message):
         with open(f"pictures/minimal_cost{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
-        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /minimal_cost")
     else:
@@ -204,7 +215,6 @@ def nwcorner_body(message):
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
-        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
     else:
@@ -242,47 +252,6 @@ def nwcornerE_body(message):
                     bot.send_photo(message.from_user.id, photo=pic)
         finally:
             bot.send_message(message.from_user.id, "План оптимизирован")
-
-
-@bot.message_handler(commands=['fogel', 'fogelE'])
-@privilege_check(bot)
-def fogel_start(message):
-    bot.send_message(message.from_user.id, "Введите матрицу стоимости")
-
-    if message.text == '/fogel':
-        bot.register_next_step_handler(message, fogel_body)
-    else:
-        bot.register_next_step_handler(message, fogelE_body)
-
-
-def fogel_body(message):
-    try:
-        method = Fogel_method(message.text, bot, message)
-        optimization = Potential(method.build_matrix(), message)
-        with open(f"pictures/fogel{message.from_user.id}.png", "rb") as pic:
-            bot.send_photo(message.from_user.id, photo=pic)
-        bot.send_message(message.from_user.id, "План построен")
-        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
-    except:
-        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /fogel")
-    else:
-        try:
-            optimize = True
-            while optimize:
-                optimize = optimization.potentials()
-                with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
-                    bot.send_photo(message.from_user.id, photo=pic)
-        except:
-            optimization.table_potentials()
-            with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
-                bot.send_photo(message.from_user.id, photo=pic)
-            bot.send_message(message.from_user.id,
-                             "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода (ввод /fogelE)")
-
-
-def fogel_bodyE(message):
-    pass
 
 
 @bot.message_handler(commands=['grant'])
