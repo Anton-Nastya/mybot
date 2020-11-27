@@ -2,8 +2,6 @@ from assignment_problem.parent_method import Method
 import numpy  # numpy==1.19.3
 
 
-
-
 class HungM_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
@@ -241,7 +239,6 @@ class HungM_method(Method):
 
     def search_min_in_a3(self):
         num_col = len(self.matrix)
-        reduced_matrix = []
         _min = 1000000
 
         for i in range(num_col):
@@ -253,12 +250,13 @@ class HungM_method(Method):
 
         for i in range(num_col):
             if self.marks_vert[i] == '':
+                self.reduct_vert[i] = _min
                 for j in range(num_col):
-                    if self.marks_hor[j] == '+':
+                    if self.marks_hor[j] == '':
                         if self.matrix[i][j].capacity == _min:
                             self.matrix[i][j].accentuation = 1
-                            self.reduct_vert[i] = _min
-                            self.reduct_hor_plus[j] = _min
+                    else:
+                        self.reduct_hor_plus[j] = _min
 
         return _min
 
@@ -282,6 +280,8 @@ class HungM_method(Method):
                 self.marks_hor[i] = ''
             self.index_hor[i] = ''
             self.index_vert[i] = ''
+            for j in range(num_col):
+                self.matrix[i][j].index = ''
 
         _min = self.search_min_in_a3()
 

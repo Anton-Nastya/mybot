@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
 
 cell_size = 40
-frame_width = 60
+frame_width = 50
 
 class Method:
     def __init__(self, matrix, bot, message):
@@ -38,6 +38,7 @@ class Method:
         self.marks_vert.clear()
         self.reduct_hor.clear()
         self.reduct_vert.clear()
+        self.reduct_hor_plus.clear()
         self.index_hor.clear()
         self.index_vert.clear()
 
