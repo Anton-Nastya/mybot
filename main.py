@@ -14,9 +14,6 @@ from assignment_problem.hungarian_matrix import HungM_method
 
 from telebot import types
 
-method = ''
-primary = ''
-
 bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
@@ -88,8 +85,6 @@ def start_hung_m(message):
 
 
 def hung_m_body(message):
-    global method
-    global primary
     try:
         primary = HungM_method(message.text, bot, message)
         method = HungM_method(message.text, bot, message)
@@ -127,15 +122,6 @@ def hung_m_body(message):
 
     bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
     bot.send_message(message.from_user.id, "Задача решена")
-
-
-def f1(iteration, row, mas):
-    global method
-    global primary
-
-    method.select_optimal_appointments_f1(primary)
-
-    return 'F2'
 
 
 def hung_g_body(message):

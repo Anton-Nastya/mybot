@@ -1,9 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
 
-cell_size = 40
-frame_width = 60
-
 class Method:
     def __init__(self, matrix, bot, message):
         self.message = message
@@ -17,6 +14,9 @@ class Method:
         self.index_hor = []     # индексы горизонтальных меток
         self.index_vert = []    # индексы вертикальных меток
         self.name = ''
+
+        cell_size = 40
+        frame_width = 60
 
         matrix_list = matrix.split('\n')
         count = len(matrix_list[0].split())
@@ -41,7 +41,7 @@ class Method:
         self.index_hor.clear()
         self.index_vert.clear()
 
-        for i in range(0, col_num):
+        for i in range(col_num):
             self.marks_hor.append('')
             self.marks_vert.append('')
             self.reduct_hor_plus.append('')
@@ -52,10 +52,8 @@ class Method:
 
 
     def create_empty_formate(self):
-        global cell_size
-        global frame_width
         col_num = len(self.matrix)
-        picture_size = col_num * cell_size + 2 * frame_width
+        picture_size = col_num * self.cell_size + 2 * self.frame_width
         pic_in_height = 7
         pic_in_width = 4
 
@@ -64,10 +62,8 @@ class Method:
 
 
     def create_formate(self, position):
-        global cell_size
-        global frame_width
         col_num = len(self.matrix)
-        picture_size = col_num * cell_size + 2 * frame_width
+        picture_size = col_num * self.cell_size + 2 * self.frame_width
         coordinates = [position[0] * picture_size,
                        position[1] * picture_size]
 
@@ -80,22 +76,20 @@ class Method:
 
 
     def _create_table(self, text, state=''):
-        global cell_size
-        global frame_width
         col_num = len(self.matrix)
-        m_side_size = cell_size * col_num
+        m_side_size = self.cell_size * self.col_num
 
-        img = Image.new('RGBA', (m_side_size + frame_width * 2, m_side_size + frame_width * 2), 'white')
+        img = Image.new('RGBA', (m_side_size + self.frame_width * 2, m_side_size + self.frame_width * 2), 'white')
         idraw = ImageDraw.Draw(img)
 
         for i in range(0, col_num + 1):
-            idraw.line((frame_width, frame_width + i * cell_size,
-                        m_side_size + frame_width, frame_width + i * cell_size), width=0, fill='black') # hor
-            idraw.line((frame_width + i * cell_size, frame_width,
-                        frame_width + i * cell_size, m_side_size + frame_width), width=0, fill='black') # vert
+            idraw.line((self.frame_width, self.frame_width + i * self.cell_size,
+                        m_side_size + self.frame_width, self.frame_width + i * self.cell_size), width=0, fill='black') # hor
+            idraw.line((self.frame_width + i * self.cell_size, self.frame_width,
+                        self.frame_width + i * self.cell_size, m_side_size + self.frame_width), width=0, fill='black') # vert
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
-        self._fill_table(cell_size, col_num, frame_width, text, state)
+        self._fill_table(self.cell_size, col_num, self.frame_width, text, state)
 
 
     def _fill_table(self, cell_size, col_num, frame_width, text, state):
