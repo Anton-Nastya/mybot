@@ -1,9 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
 
-cell_size = 40
-frame_width = 60
-
 class Method:
     def __init__(self, matrix, bot, message):
         self.message = message
@@ -17,6 +14,8 @@ class Method:
         self.index_hor = []     # индексы горизонтальных меток
         self.index_vert = []    # индексы вертикальных меток
         self.name = ''
+        self.cell_size = 40
+        self.frame_width = 60
 
         matrix_list = matrix.split('\n')
         count = len(matrix_list)
@@ -52,10 +51,8 @@ class Method:
 
 
     def create_empty_formate(self):
-        global cell_size
-        global frame_width
         col_num = len(self.matrix)
-        picture_size = col_num * cell_size + 2 * frame_width
+        picture_size = col_num * self.cell_size + 2 * self.frame_width
         pic_in_height = 7
         pic_in_width = 4
 
@@ -64,10 +61,8 @@ class Method:
 
 
     def create_formate(self, position):
-        global cell_size
-        global frame_width
         col_num = len(self.matrix)
-        picture_size = col_num * cell_size + 2 * frame_width
+        picture_size = col_num * self.cell_size + 2 * self.frame_width
         coordinates = [position[0] * picture_size,
                        position[1] * picture_size]
 
@@ -80,26 +75,24 @@ class Method:
 
 
     def _create_table(self, text, state=''):
-        global cell_size
-        global frame_width
         col_num = len(self.matrix)
-        m_side_size = cell_size * col_num
+        m_side_size = self.cell_size * col_num
 
-        img = Image.new('RGBA', (m_side_size + frame_width * 2, m_side_size + frame_width * 2), 'white')
+        img = Image.new('RGBA', (m_side_size + self.frame_width * 2, m_side_size + self.frame_width * 2), 'white')
         idraw = ImageDraw.Draw(img)
 
         for i in range(0, col_num + 1):
-            idraw.line((frame_width, frame_width + i * cell_size,
-                        m_side_size + frame_width, frame_width + i * cell_size), width=0, fill='black') # hor
-            idraw.line((frame_width + i * cell_size, frame_width,
-                        frame_width + i * cell_size, m_side_size + frame_width), width=0, fill='black') # vert
+            idraw.line((self.frame_width, self.frame_width + i * self.cell_size,
+                        m_side_size + self.frame_width, self.frame_width + i * self.cell_size), width=0, fill='black') # hor
+            idraw.line((self.frame_width + i * self.cell_size, self.frame_width,
+                        self.frame_width + i * self.cell_size, m_side_size + self.frame_width), width=0, fill='black') # vert
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
-        self._fill_table(cell_size, col_num, frame_width, text, state)
+        self._fill_table(col_num, text, state)
 
 
-    def _fill_table(self, cell_size, col_num, frame_width, text, state):
-        m_side_size = cell_size * col_num
+    def _fill_table(self, col_num, text, state):
+        m_side_size = self.cell_size * col_num
 
         img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
         draw = ImageDraw.Draw(img)
@@ -109,8 +102,8 @@ class Method:
 
         padding = 6     # отступ
 
-        draw.text((frame_width, 5), text, font=font, fill='black')
-        draw.text((frame_width + m_side_size - font.getsize(state)[0], 5), state, font=font, fill='black')
+        draw.text((self.frame_width, 5), text, font=font, fill='black')
+        draw.text((self.frame_width + m_side_size - font.getsize(state)[0], 5), state, font=font, fill='black')
 
         for i in range(0, col_num):
             for j in range(0, col_num):
@@ -119,21 +112,21 @@ class Method:
                 cap_text_size = font.getsize(cap_num)
                 index_matr_size = font.getsize(index_matr_num)
 
-                draw.text((frame_width + cell_size * j + (cell_size - cap_text_size[0]) / 2,
-                           frame_width + cell_size * i + (cell_size - cap_text_size[1]) / 2),
+                draw.text((self.frame_width + self.cell_size * j + (self.cell_size - cap_text_size[0]) / 2,
+                           self.frame_width + self.cell_size * i + (self.cell_size - cap_text_size[1]) / 2),
                            cap_num, font=font, fill='black')                                     # заполнение значений клеток
 
-                draw.text((frame_width + cell_size * j + 30,
-                           frame_width + cell_size * i + 5),
+                draw.text((self.frame_width + self.cell_size * j + 30,
+                           self.frame_width + self.cell_size * i + 5),
                            self.matrix[i][j].sign, font=font, fill='black')                      # заполнение * и '
 
-                draw.text((frame_width + cell_size * j + (cell_size - index_matr_size[0]),
-                           frame_width + cell_size * i + (cell_size - index_matr_size[1])),
+                draw.text((self.frame_width + self.cell_size * j + (self.cell_size - index_matr_size[0]),
+                           self.frame_width + self.cell_size * i + (self.cell_size - index_matr_size[1])),
                            index_matr_num, font=font_index, fill='black')                         # заполнение значений индексов матрицы
 
                 if (self.matrix[i][j].accentuation):
-                    draw.text((frame_width + cell_size * j + (cell_size - cap_text_size[0]) / 2,
-                               frame_width + cell_size * i + (cell_size - cap_text_size[1]) / 2 + 3),
+                    draw.text((self.frame_width + self.cell_size * j + (self.cell_size - cap_text_size[0]) / 2,
+                               self.frame_width + self.cell_size * i + (self.cell_size - cap_text_size[1]) / 2 + 3),
                               '_', font=font, fill='black')
 
         for i in range(0, col_num):
@@ -169,34 +162,34 @@ class Method:
             marks_vert_size = font_index.getsize(self.marks_vert[i])
 
 
-            draw.text((frame_width + cell_size * i + (cell_size - reduct_hor_size[0]) / 2,
-                       frame_width + m_side_size + 5),
+            draw.text((self.frame_width + self.cell_size * i + (self.cell_size - reduct_hor_size[0]) / 2,
+                       self.frame_width + m_side_size + 5),
                       reduct_hor_num, font=font, fill='black')                                     # заполнение редукции по столбцам
 
-            draw.text((frame_width + m_side_size + 5,
-                       frame_width + cell_size * i + (cell_size - reduct_vert_size[1]) / 2),
+            draw.text((self.frame_width + m_side_size + 5,
+                       self.frame_width + self.cell_size * i + (self.cell_size - reduct_vert_size[1]) / 2),
                       reduct_vert_num, font=font, fill='black')                                     # заполнение редукции по строкам
 
-            draw.text((frame_width + cell_size * i + (cell_size - reduct_hor_plus_size[0]) / 2,
-                       frame_width + m_side_size + 5),
+            draw.text((self.frame_width + self.cell_size * i + (self.cell_size - reduct_hor_plus_size[0]) / 2,
+                       self.frame_width + m_side_size + 5),
                       reduct_hor_plus_num, font=font, fill='black')                                 # заполнение положительной редукции по столбцам
 
 
-            draw.text((frame_width + cell_size * i + (cell_size - index_hor_size[0] - 5),
-                       frame_width - index_hor_size[1] - 5),
+            draw.text((self.frame_width + self.cell_size * i + (self.cell_size - index_hor_size[0] - 5),
+                       self.frame_width - index_hor_size[1] - 5),
                       index_hor_num, font=font_index, fill='black')                                 # заполнение горизонтальных индексов
 
-            draw.text((frame_width + cell_size + m_side_size - index_vert_size[0] - 7,
-                       frame_width + cell_size * i + (cell_size - index_vert_size[1]) - 3),
+            draw.text((self.frame_width + self.cell_size + m_side_size - index_vert_size[0] - 7,
+                       self.frame_width + self.cell_size * i + (self.cell_size - index_vert_size[1]) - 3),
                       index_vert_num, font=font_index, fill='black')                                # заполнение вертикальных индексов
 
 
-            draw.text((frame_width + cell_size * i + (cell_size - marks_hor_size[0]) / 2,
-                        frame_width - (cell_size + marks_hor_size[1]) / 2),
+            draw.text((self.frame_width + self.cell_size * i + (self.cell_size - marks_hor_size[0]) / 2,
+                        self.frame_width - (self.cell_size + marks_hor_size[1]) / 2),
                       marks_hor_num, font=font, fill='black')                                       # заполнение заполнение плюсов горизонтальных
 
-            draw.text((frame_width + m_side_size + (cell_size - marks_vert_size[1]) / 2 - 5,
-                       frame_width + cell_size * i + (cell_size - marks_vert_size[1]) / 2 - 2),
+            draw.text((self.frame_width + m_side_size + (self.cell_size - marks_vert_size[1]) / 2 - 5,
+                       self.frame_width + self.cell_size * i + (self.cell_size - marks_vert_size[1]) / 2 - 2),
                       marks_vert_num, font=font, fill='black')                                      # заполнение плюсов вертикальных
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")

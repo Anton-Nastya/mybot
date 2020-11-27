@@ -2,8 +2,6 @@ from assignment_problem.parent_method import Method
 import numpy  # numpy==1.19.3
 
 
-
-
 class HungM_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
