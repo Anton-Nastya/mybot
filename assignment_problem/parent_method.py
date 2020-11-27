@@ -19,7 +19,7 @@ class Method:
         frame_width = 60
 
         matrix_list = matrix.split('\n')
-        count = len(matrix_list[0].split())
+        count = len(matrix_list)
 
         for line in matrix_list:
             line_list = line.split()
@@ -131,19 +131,19 @@ class Method:
                               '_', font=font, fill='black')
 
         for i in range(0, col_num):
-            if self.reduct_hor[i] is '':
+            if self.reduct_hor[i] == '':
                 reduct_hor_num = ''
             else:
                 reduct_hor_num = '-' + str(self.reduct_hor[i])
             reduct_hor_size = font.getsize(reduct_hor_num)
 
-            if self.reduct_vert[i] is '':
+            if self.reduct_vert[i] == '':
                 reduct_vert_num = ''
             else:
                 reduct_vert_num = '-' + str(self.reduct_vert[i])
             reduct_vert_size = font.getsize(reduct_vert_num)
 
-            if self.reduct_hor_plus[i] is '':
+            if self.reduct_hor_plus[i] == '':
                 reduct_hor_plus_num = ''
             else:
                 reduct_hor_plus_num = '+' + str(self.reduct_hor_plus[i])

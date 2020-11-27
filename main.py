@@ -93,35 +93,34 @@ def hung_m_body(message):
         method.build_matrix()
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
-        exit()
-
-    with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
-        bot.send_document(message.from_user.id, pic)
-
-    algorithm = {'R1': method.col_reduction_r1,
-                'R2': method.row_reduction_r2,
-                'P1': method.preparatory_stage_p1,
-                'P2': method.search_for_col_with_ind_zeros_p2,
-                'F1': method.select_optimal_appointments_f1,
-                'A1': method.a1,
-                'A2': method.a2,
-                'A3': method.a3}
-
-    status = 'R1'
-    iteration = 0
-    row = 1
-    mas = []
-    while status != 'F2':
-        print(algorithm[status].__name__, end=' return ')
-        if status == 'F1':
-            mas.append(primary)
-        status, iteration, row, mas = algorithm[status](iteration, row, mas)
+    else:
         with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
             bot.send_document(message.from_user.id, pic)
-        print(status)
 
-    bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
-    bot.send_message(message.from_user.id, "Задача решена")
+        algorithm = {'R1': method.col_reduction_r1,
+                    'R2': method.row_reduction_r2,
+                    'P1': method.preparatory_stage_p1,
+                    'P2': method.search_for_col_with_ind_zeros_p2,
+                    'F1': method.select_optimal_appointments_f1,
+                    'A1': method.a1,
+                    'A2': method.a2,
+                    'A3': method.a3}
+
+        status = 'R1'
+        iteration = 0
+        row = 1
+        mas = []
+        while status != 'F2':
+            print(algorithm[status].__name__, end=' return ')
+            if status == 'F1':
+                mas.append(primary)
+            status, iteration, row, mas = algorithm[status](iteration, row, mas)
+            with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
+                bot.send_document(message.from_user.id, pic)
+            print(status)
+
+        bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
+        bot.send_message(message.from_user.id, "Задача решена")
 
 
 def hung_g_body(message):
