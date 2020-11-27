@@ -14,10 +14,7 @@ from assignment_problem.hungarian_matrix import HungM_method
 
 from telebot import types
 
-method = ''
-primary = ''
-
-bot = telebot.TeleBot('1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw')
+bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
 # main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
@@ -88,8 +85,6 @@ def start_hung_m(message):
 
 
 def hung_m_body(message):
-    global method
-    global primary
     try:
         primary = HungM_method(message.text, bot, message)
         method = HungM_method(message.text, bot, message)
@@ -99,6 +94,8 @@ def hung_m_body(message):
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
     else:
+        with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
+            bot.send_document(message.from_user.id, pic)
 
         algorithm = {'R1': method.col_reduction_r1,
                     'R2': method.row_reduction_r2,
@@ -114,26 +111,16 @@ def hung_m_body(message):
         row = 1
         mas = []
         while status != 'F2':
-            #print(algorithm[status].__name__, end=' return ')
+            print(algorithm[status].__name__, end=' return ')
             if status == 'F1':
                 mas.append(primary)
             status, iteration, row, mas = algorithm[status](iteration, row, mas)
-            #print(status)
-
-        with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
-            bot.send_document(message.from_user.id, pic)
+            with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
+                bot.send_document(message.from_user.id, pic)
+            print(status)
 
         bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
         bot.send_message(message.from_user.id, "Задача решена")
-
-
-def f1(iteration, row, mas):
-    global method
-    global primary
-
-    method.select_optimal_appointments_f1(primary)
-
-    return 'F2'
 
 
 def hung_g_body(message):
