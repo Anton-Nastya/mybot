@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
 
 cell_size = 40
-frame_width = cell_size * 2
+frame_width = 60
 
 class Method:
     def __init__(self, matrix, bot, message):
@@ -107,8 +107,8 @@ class Method:
 
         padding = 6     # отступ
 
-        draw.text((5, 5), f'     {text}', font=font, fill='black')
-        draw.text((2 * frame_width + m_side_size - font.getsize(state)[0] - 2, 5), state, font=font, fill='black')
+        draw.text((frame_width, 5), text, font=font, fill='black')
+        draw.text((frame_width + m_side_size - font.getsize(state)[0], 5), state, font=font, fill='black')
 
         for i in range(0, col_num):
             for j in range(0, col_num):
@@ -128,6 +128,11 @@ class Method:
                 draw.text((frame_width + cell_size * j + (cell_size - index_matr_size[0]),
                            frame_width + cell_size * i + (cell_size - index_matr_size[1])),
                            index_matr_num, font=font_index, fill='black')                         # заполнение значений индексов матрицы
+
+                if (self.matrix[i][j].accentuation):
+                    draw.text((frame_width + cell_size * j + (cell_size - cap_text_size[0]) / 2,
+                               frame_width + cell_size * i + (cell_size - cap_text_size[1]) / 2 + 3),
+                              '_', font=font, fill='black')
 
         for i in range(0, col_num):
             if self.reduct_hor[i] is '':

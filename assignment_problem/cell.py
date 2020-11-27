@@ -8,3 +8,4 @@ class Cell:
     def set_default(self):
         self.sign = ''
         self.index = ''
+        self.accentuation = 0

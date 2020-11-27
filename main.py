@@ -78,7 +78,6 @@ def start_work(message):
 
 @bot.message_handler(commands=['hung_matrix', 'hung_graph'])
 @privilege_check(bot)
-
 def start_hung_m(message):
     bot.send_message(message.from_user.id, "Введите матрицу")
 
@@ -106,28 +105,31 @@ def hung_m_body(message):
 
     algorithm = {'R1': method.col_reduction_r1,
                 'R2': method.row_reduction_r2,
-                'R3': method.reduction_r3,
-                'P': method.preparatory_stage_p,
-                'F1': f1,
-                'F2': primary.output_sum_f2,
+                'P1': method.preparatory_stage_p,
+                'P2': method.search_for_col_with_ind_zeros,
+                'F1': method.select_optimal_appointments_f1,
                 'A1': method.a1,
                 'A2': method.a2,
                 'A3': method.a3}
 
     status = 'R1'
+    iteration = 0
+    row = 1
+    mas = []
     while status != 'F2':
         print(algorithm[status].__name__, end=' return ')
-        status = algorithm[status]()
+        if status == 'F1':
+            mas.append(primary)
+        status, iteration, row, mas = algorithm[status](iteration, row, mas)
         with open(f"pictures/hung_matrix_formate{message.from_user.id}.png", "rb") as pic:
             bot.send_document(message.from_user.id, pic)
         print(status)
-        # status = 'F'
 
     bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
     bot.send_message(message.from_user.id, "Задача решена")
 
 
-def f1():
+def f1(iteration, row, mas):
     global method
     global primary
 
