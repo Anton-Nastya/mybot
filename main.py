@@ -105,8 +105,8 @@ def hung_m_body(message):
 
     algorithm = {'R1': method.col_reduction_r1,
                 'R2': method.row_reduction_r2,
-                'P1': method.preparatory_stage_p,
-                'P2': method.search_for_col_with_ind_zeros,
+                'P1': method.preparatory_stage_p1,
+                'P2': method.search_for_col_with_ind_zeros_p2,
                 'F1': method.select_optimal_appointments_f1,
                 'A1': method.a1,
                 'A2': method.a2,

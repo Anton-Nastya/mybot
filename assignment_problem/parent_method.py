@@ -13,6 +13,7 @@ class Method:
         self.marks_vert = []    # вертикальные метки
         self.reduct_hor = []    # редукция по столбцам
         self.reduct_vert = []   # редукция по строкам
+        self.reduct_hor_plus = []  # редукция по строкам в а3 прибавление
         self.index_hor = []     # индексы горизонтальных меток
         self.index_vert = []    # индексы вертикальных меток
         self.name = ''
@@ -43,6 +44,7 @@ class Method:
         for i in range(0, col_num):
             self.marks_hor.append('')
             self.marks_vert.append('')
+            self.reduct_hor_plus.append('')
             self.reduct_hor.append('')
             self.reduct_vert.append('')
             self.index_hor.append('')
@@ -147,6 +149,13 @@ class Method:
                 reduct_vert_num = '-' + str(self.reduct_vert[i])
             reduct_vert_size = font.getsize(reduct_vert_num)
 
+            if self.reduct_hor_plus[i] is '':
+                reduct_hor_plus_num = ''
+            else:
+                reduct_hor_plus_num = '+' + str(self.reduct_hor_plus[i])
+            reduct_hor_plus_size = font.getsize(reduct_hor_plus_num)
+
+
             index_hor_num = str(self.index_hor[i])
             index_hor_size = font_index.getsize(index_hor_num)
 
@@ -167,6 +176,10 @@ class Method:
             draw.text((frame_width + m_side_size + 5,
                        frame_width + cell_size * i + (cell_size - reduct_vert_size[1]) / 2),
                       reduct_vert_num, font=font, fill='black')                                     # заполнение редукции по строкам
+
+            draw.text((frame_width + cell_size * i + (cell_size - reduct_hor_plus_size[0]) / 2,
+                       frame_width + m_side_size + 5),
+                      reduct_hor_plus_num, font=font, fill='black')                                 # заполнение положительной редукции по столбцам
 
 
             draw.text((frame_width + cell_size * i + (cell_size - index_hor_size[0] - 5),

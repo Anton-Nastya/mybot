@@ -70,7 +70,7 @@ class HungM_method(Method):
                 return False
         return True
 
-    def preparatory_stage_p(self, iteration, row, mas):
+    def preparatory_stage_p1(self, iteration, row, mas):
         num_col = len(self.matrix)
         num_independent_zer = 0
 
@@ -93,7 +93,7 @@ class HungM_method(Method):
 
     # --------------------------------------Поиск строк содержащих независимые нули-------------------------------------
 
-    def search_for_col_with_ind_zeros(self, iteration, row, mas):
+    def search_for_col_with_ind_zeros_p2(self, iteration, row, mas):
         num_independent_zer = mas[0]
         num_col = len(self.matrix)
 
@@ -199,8 +199,10 @@ class HungM_method(Method):
                 elif (i, j) in cycle:
                     if self.matrix[i][j].sign == "'":
                         self.matrix[i][j].sign = "*"
+                        self.matrix[i][j].accentuation = 0
                         num_independent_zer += 1
                     else:
+                        self.matrix[i][j].accentuation = 0
                         self.matrix[i][j].sign = ""
                 else:
                     if self.matrix[i][j].sign == "'":
@@ -230,15 +232,72 @@ class HungM_method(Method):
         self._create_table('', 'A2')
         self.create_formate((iteration, row))
 
-        num_independent_zer =  self.reverse(cycle)
+        num_independent_zer = self.reverse(cycle)
         mas.append(num_independent_zer)
 
         return 'P2', iteration + 1, 1, mas
 
     # ----------------------------------------Редукция свободных элементов----------------------------------------------
 
+    def search_min_in_a3(self):
+        num_col = len(self.matrix)
+        reduced_matrix = []
+        _min = 1000000
+
+        for i in range(num_col):
+            if self.marks_vert[i] == '':
+                for j in range(num_col):
+                    if self.marks_hor[j] == '':
+                        if self.matrix[i][j].capacity <= _min:
+                            _min = self.matrix[i][j].capacity
+
+        for i in range(num_col):
+            if self.marks_vert[i] == '':
+                for j in range(num_col):
+                    if self.marks_hor[j] == '+':
+                        if self.matrix[i][j].capacity == _min:
+                            self.matrix[i][j].accentuation = 1
+                            self.reduct_vert[i] = _min
+                            self.reduct_hor_plus[j] = _min
+
+        return _min
+
+
+    def reduction_in_a3(self, _min):
+        num_col = len(self.matrix)
+
+        for i in range(num_col):
+            for j in range(num_col):
+                if self.reduct_vert[i] == _min:
+                    self.matrix[i][j].capacity -= _min
+                if self.reduct_hor_plus[j] == _min:
+                    self.matrix[i][j].capacity += _min
+
+
     def a3(self, iteration, row, mas):
-        pass
+        num_col = len(self.matrix)
+
+        for i in range(num_col):
+            if self.marks_hor[i] == '[+  ]':
+                self.marks_hor[i] = ''
+            self.index_hor[i] = ''
+            self.index_vert[i] = ''
+
+        _min = self.search_min_in_a3()
+
+        self._create_table('', 'A3')
+        self.create_formate((iteration, row))
+
+        self.reduction_in_a3(_min)
+
+        for i in range(num_col):
+            for j in range(num_col):
+                self.reduct_vert[i] = ''
+                self.reduct_hor_plus[j] = ''
+                if self.matrix[i][j].accentuation == 1:
+                    self.matrix[i][j].accentuation = 0
+
+        return 'A1', iteration, row + 1, mas
 
     # ---------------------------------------------Выбор * и завершение-------------------------------------------------
 
