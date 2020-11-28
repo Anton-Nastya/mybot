@@ -8,14 +8,21 @@ class Method:
         self.matrix = []
         self.marks_hor = []     # горизонтальные метки
         self.marks_vert = []    # вертикальные метки
+        self.accent_hor = []    # подчеркивания в горизонтальных метках
+        self.accent_vert = []   # подчеркивания в вертикальных метках
+        self.marks2_hor = []    # горизонтальные метки виорой уровень для графического метода
+        self.marks2_vert = []   # вертикальные метки второй уровень для графического метода
         self.reduct_hor = []    # редукция по столбцам
         self.reduct_vert = []   # редукция по строкам
         self.reduct_hor_plus = []  # редукция по строкам в а3 прибавление
         self.index_hor = []     # индексы горизонтальных меток
         self.index_vert = []    # индексы вертикальных меток
+        self.cycles_strings = []    # аугментальная цепь
+        self.h = ''
         self.name = ''
+
         self.cell_size = 40
-        self.frame_width = 60
+        self.frame_width = 70
 
         matrix_list = matrix.split('\n')
         count = len(matrix_list)
@@ -35,19 +42,30 @@ class Method:
 
         self.marks_hor.clear()
         self.marks_vert.clear()
+        self.accent_hor.clear()
+        self.accent_vert.clear()
+        self.marks2_hor.clear()
+        self.marks2_vert.clear()
         self.reduct_hor.clear()
         self.reduct_vert.clear()
         self.index_hor.clear()
         self.index_vert.clear()
+        self.cycles_strings.clear()
 
         for i in range(0, col_num):
             self.marks_hor.append('')
             self.marks_vert.append('')
+            self.accent_hor.append(0)
+            self.accent_vert.append(0)
+            self.marks2_hor.append('')
+            self.marks2_vert.append('')
             self.reduct_hor_plus.append('')
             self.reduct_hor.append('')
             self.reduct_vert.append('')
             self.index_hor.append('')
             self.index_vert.append('')
+            self.cycles_strings.append('')
+            self.h = ''
 
 
     def create_empty_formate(self):
@@ -89,6 +107,7 @@ class Method:
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
         self._fill_table(col_num, text, state)
+        self._fill_around_table(col_num)
 
 
     def _fill_table(self, col_num, text, state):
@@ -100,10 +119,9 @@ class Method:
         font = ImageFont.truetype("calibri.ttf", size=20)
         font_index = ImageFont.truetype("calibri.ttf", size=15)
 
-        padding = 6     # отступ
 
-        draw.text((self.frame_width, 5), text, font=font, fill='black')
-        draw.text((self.frame_width + m_side_size - font.getsize(state)[0], 5), state, font=font, fill='black')
+        draw.text((self.frame_width, 3), text, font=font, fill='black')
+        draw.text((self.frame_width + m_side_size - font.getsize(state)[0], 3), state, font=font, fill='black')
 
         for i in range(0, col_num):
             for j in range(0, col_num):
@@ -127,7 +145,20 @@ class Method:
                 if (self.matrix[i][j].accentuation):
                     draw.text((self.frame_width + self.cell_size * j + (self.cell_size - cap_text_size[0]) / 2,
                                self.frame_width + self.cell_size * i + (self.cell_size - cap_text_size[1]) / 2 + 3),
-                              '_', font=font, fill='black')
+                              '_', font=font, fill='black')                                       # печать подчеркиванй для найденного цикла
+
+        img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
+
+
+    def _fill_around_table(self, col_num):
+        m_side_size = self.cell_size * col_num
+
+        img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
+        draw = ImageDraw.Draw(img)
+
+        font = ImageFont.truetype("calibri.ttf", size=20)
+        font_index = ImageFont.truetype("calibri.ttf", size=15)
+
 
         for i in range(0, col_num):
             if self.reduct_hor[i] == '':
