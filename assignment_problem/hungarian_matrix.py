@@ -121,27 +121,29 @@ class HungM_method(Method):
             if i < 5:
                 if self.marks_hor[i] != '+':
                     for j in range(0, num_col):
-                        if self.matrix[j][i].capacity == 0 and self.matrix[j][i].sign == '':
-                            self.matrix[j][i].sign = "'"
-                            self.matrix[j][i].index = index
+                        if self.marks_vert[j] != '+':
+                            if self.matrix[j][i].capacity == 0 and self.matrix[j][i].sign == '':
+                                self.matrix[j][i].sign = "'"
+                                self.matrix[j][i].index = index
 
-                            for k in range(1, num_col + 1):
-                                if self.matrix[j][(i + k) % num_col].sign == '*':
-                                    self.marks_hor[(i + k) % num_col] = '[+  ]'
-                                    self.index_hor[(i + k) % num_col] = index
-                                    self.marks_vert[j] = '+'
-                                    self.index_vert[j] = index
-                                    break
-                                if k == num_col:
-                                    self._create_table('', state='A1')
-                                    self.create_formate((iteration, row))
-                                    mas.append(j)
-                                    mas.append((i + k) % num_col)
-                                    return 'A2', iteration, row + 1, mas
+                                for k in range(1, num_col + 1):
+                                    if self.matrix[j][(i + k) % num_col].sign == '*' \
+                                            and self.marks_hor[(i + k) % num_col] == '+':
+                                        self.marks_hor[(i + k) % num_col] = '[+  ]'
+                                        self.index_hor[(i + k) % num_col] = index
+                                        self.marks_vert[j] = '+'
+                                        self.index_vert[j] = index
+                                        break
+                                    if k == num_col:
+                                        self._create_table('', state='A1')
+                                        self.create_formate((iteration, row))
+                                        mas.append(j)
+                                        mas.append((i + k) % num_col)
+                                        return 'A2', iteration, row + 1, mas
 
-                            index += 1
-                            i = -1
-                            break
+                                index += 1
+                                i = -1
+                                break
             else:
                 self._create_table('', state='A1')
                 self.create_formate((iteration, row))
