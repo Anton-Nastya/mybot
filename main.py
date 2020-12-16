@@ -147,6 +147,7 @@ def mincost_body(message):
         with open(f"pictures/minimal_cost{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
+        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /minimal_cost")
     else:
@@ -203,6 +204,7 @@ def nwcorner_body(message):
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
+        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /nwcorner")
     else:
@@ -254,28 +256,29 @@ def fogel_start(message):
 
 
 def fogel_body(message):
-
+    try:
         method = Fogel_method(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/fogel{message.from_user.id}.png", "rb") as pic:
             bot.send_photo(message.from_user.id, photo=pic)
         bot.send_message(message.from_user.id, "План построен")
-
+        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
+    except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /fogel")
-        """else:
-            try:
-                optimize = True
-                while optimize:
-                    optimize = optimization.potentials()
-                    with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
-                        bot.send_photo(message.from_user.id, photo=pic)
-            except:
-                optimization.table_potentials()
+    else:
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
                 with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
                     bot.send_photo(message.from_user.id, photo=pic)
-                bot.send_message(message.from_user.id,
-                                 "Вырожденный план. Для использования метода потенциалов \
-                                 воспользуйтесь построением плана с помощью Е-метода (ввод /fogelE)")"""
+        except:
+            optimization.table_potentials()
+            with open(f"pictures/potentials{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
+            bot.send_message(message.from_user.id,
+                             "Вырожденный план. Для использования метода потенциалов \
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /fogelE)")
 
 
 def fogel_bodyE(message):

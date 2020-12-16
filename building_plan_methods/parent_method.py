@@ -118,3 +118,12 @@ class Method:
                           str(self.b_matrix[i - row_num][j - 1]), font=font, fill='black')
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
+
+    def find_sum(self):
+        sum = 0
+        for line in self.matrix:
+            for cell in line:
+                if cell.capacity:
+                    sum += cell.get_cell_price()
+
+        return sum

@@ -1,6 +1,5 @@
-from building_plan_methods.cell import Cell
 from building_plan_methods.parent_method import Method
-from typing import List
+from PIL import Image, ImageDraw, ImageFont
 
 
 class Fogel_method(Method):
@@ -105,9 +104,9 @@ class Fogel_method(Method):
                 else:
                     self.fineB[k][max_fine['index']] = ''
 
-            print(self.fineA)
+            """print(self.fineA)
             print(self.fineB)
-            self.print_matrix()
+            self.print_matrix()"""
 
     def get_fine(self, line, need):
         if need == 0:
@@ -145,3 +144,71 @@ class Fogel_method(Method):
         self._create_table()
 
         return self.matrix
+
+    def _fill_table(self, cell_size, row_num, col_num):
+        img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
+        draw = ImageDraw.Draw(img)
+
+        font = ImageFont.truetype("calibri.ttf", size=20)
+        font_price = ImageFont.truetype("calibri.ttf", size=15)
+
+        padding = 6
+
+        draw.text((padding, padding), "NW", font=font, fill='black')
+
+        for i in range(1, col_num - 1):
+            draw.text((cell_size[0] * i + padding, padding), "T{}".format(i), font=font, fill='black')
+
+        draw.text((cell_size[0] * (i + 1) + padding, padding), "A", font=font, fill='black')
+
+        for i in range(1, row_num - 1):
+            draw.text((padding, cell_size[1] * i + padding), "S{}".format(i), font=font, fill='black')
+
+        draw.text((padding, cell_size[1] * (i + 1) + padding), "B", font=font, fill='black')
+
+        for i in range(1, col_num - 1):
+            text = str(self.proposal[i - 1])
+            draw.text((cell_size[0] * i + padding, cell_size[1] * (row_num - 1) + padding), text, font=font,
+                      fill='black')
+
+        for i in range(1, row_num - 1):
+            text = str(self.stock[i - 1])
+            draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * i + padding), text, font=font,
+                      fill='black')
+
+        for i in range(1, row_num - 1):
+            for j in range(1, col_num - 1):
+                cap_num = str(self.matrix[i - 1][j - 1].capacity)
+                cap_text_size = font.getsize(cap_num)
+                price_num = str(self.matrix[i - 1][j - 1].price)
+                draw.text((cell_size[0] * j + (cell_size[0] - cap_text_size[0]) / 2,
+                           cell_size[1] * i + (cell_size[1] - cap_text_size[1]) / 2), cap_num, font=font,
+                          fill='black')
+                draw.text((cell_size[0] * (j + 1) - padding * 2, cell_size[1] * i + padding), price_num,
+                          font=font_price,
+                          fill='black')
+
+        draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * (row_num - 1) + padding),
+                  str(sum(self.stock)), font=font, fill='black')
+
+        for i in range(col_num, col_num + len(self.a_matrix)):
+            for j in range(1, len(self.a_matrix[0]) + 1):
+                fine = self.fineA[i - col_num][j - 1]
+                draw.text((cell_size[0] * i + padding, cell_size[1] * j + padding),
+                          str(self.a_matrix[i - col_num][j - 1]), font=font, fill='black')
+
+                if fine != '':
+                    draw.text((cell_size[0] * (i - 1) + padding * 5, cell_size[1] * j + padding * 2),
+                              '/' + str(fine), font=font, fill='black')
+
+        for i in range(row_num, row_num + len(self.b_matrix)):
+            for j in range(1, len(self.b_matrix[0]) + 1):
+                fine = self.fineB[i - row_num][j - 1]
+                draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding),
+                          str(self.b_matrix[i - row_num][j - 1]), font=font, fill='black')
+
+                if fine != '':
+                    draw.text((cell_size[0] * j + padding * 5, cell_size[1] * (i - 1) + padding * 2),
+                              '/' + str(fine), font=font, fill='black')
+
+        img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
