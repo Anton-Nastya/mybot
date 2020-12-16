@@ -128,7 +128,8 @@ def hung_g_body(message):
 
         algorithm = {'R1': method.col_reduction_r1,
                      'R2': method.row_reduction_r2,
-                     'P1': method.preparatory_stage_p1,
+                     'P1': method.print_p1,
+                     'P2': method.preparatory_stage_p2,
                      'F1': method.select_optimal_appointments_f1,
                      'A5': method.a5,
                      'A6': method.a6,
@@ -185,6 +186,13 @@ def mincost_body(message):
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
                              воспользуйтесь построением плана с помощью Е-метода (ввод /minimal_costE)")
+        finally:
+            bot.send_message(message.from_user.id, "План оптимизирован")
+            sum_ = 0
+            for i in range(len(method.matrix)):
+                for j in range(len(method.matrix[i])):
+                    sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
 
 
 def mincostE_body(message):
@@ -205,6 +213,11 @@ def mincostE_body(message):
                     bot.send_photo(message.from_user.id, photo=pic)
         finally:
             bot.send_message(message.from_user.id, "План оптимизирован")
+            sum_ = 0
+            for i in range(len(method.matrix)):
+                for j in range(len(method.matrix[i])):
+                    sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
 
 
 @bot.message_handler(commands=['nwcorner', 'nwcornerE'])
@@ -241,6 +254,13 @@ def nwcorner_body(message):
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
                              воспользуйтесь построением плана с помощью Е-метода (ввод /nwcornerE)")
+        finally:
+            bot.send_message(message.from_user.id, "План оптимизирован")
+            sum_ = 0
+            for i in range(len(method.matrix)):
+                for j in range(len(method.matrix[i])):
+                    sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
 
 
 def nwcornerE_body(message):
@@ -262,6 +282,11 @@ def nwcornerE_body(message):
                     bot.send_photo(message.from_user.id, photo=pic)
         finally:
             bot.send_message(message.from_user.id, "План оптимизирован")
+            sum_ = 0
+            for i in range(len(method.matrix)):
+                for j in range(len(method.matrix[i])):
+                    sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
 
 
 @bot.message_handler(commands=['grant'])
