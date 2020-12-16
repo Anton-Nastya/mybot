@@ -18,10 +18,9 @@ class Fogel_method(Method):
         self.fineB = [[0] * self.col_num]
 
         k = 0
-        min_line: List[Cell]
 
         while self.fineA[k].count('') != self.row_num and self.fineB[k].count('') != self.col_num:
-            min_fine = {'fine': 100000, 'horizontal': False, 'index': 0}
+            max_fine = {'fine': -1, 'horizontal': False, 'index': 0}
 
             for j in range(self.col_num):
                 line = []
@@ -32,29 +31,28 @@ class Fogel_method(Method):
 
                 line.sort(key=lambda cell: cell.price)
 
-                self.fineB[k][j] = self.get_fine(line)
-
-                if self.b_matrix[k][j] == 0:
-                    self.fineB[k][j] = ''
+                self.fineB[k][j] = self.get_fine(line, self.b_matrix[k][j])
 
                 if self.fineB[k][j] == '':
+                    for cell in line:
+                        cell.capacity = 0
                     continue
 
-                if self.fineB[k][j] > min_fine['fine']:
+                if self.fineB[k][j] < max_fine['fine']:
                     continue
-                elif self.fineB[k][j] == min_fine['fine']:
+                elif self.fineB[k][j] == max_fine['fine']:
                     if line[0].price == min_line[0].price:
                         if self.find_capacity(line[0], j, False)[0] <= \
-                                self.find_capacity(min_line[0], min_fine['index'],
-                                                   min_fine['horizontal'])[0]:
+                                self.find_capacity(min_line[0], max_fine['index'],
+                                                   max_fine['horizontal'])[0]:
                             continue
                     elif line[0].price > min_line[0].price:
                         continue
 
                 min_line = line
-                min_fine['fine'] = self.fineB[k][j]
-                min_fine['horizontal'] = False
-                min_fine['index'] = j
+                max_fine['fine'] = self.fineB[k][j]
+                max_fine['horizontal'] = False
+                max_fine['index'] = j
 
             for i in range(self.row_num):
                 line = []
@@ -65,31 +63,30 @@ class Fogel_method(Method):
 
                 line.sort(key=lambda cell: cell.price)
 
-                self.fineA[k][i] = self.get_fine(line)
-
-                if self.a_matrix[k][i] == 0:
-                    self.fineA[k][i] = ''
+                self.fineA[k][i] = self.get_fine(line, self.a_matrix[k][i])
 
                 if self.fineA[k][i] == '':
+                    for cell in line:
+                        cell.capacity = 0
                     continue
 
-                if self.fineA[k][i] > min_fine['fine']:
+                if self.fineA[k][i] < max_fine['fine']:
                     continue
-                elif self.fineA[k][i] == min_fine['fine']:
+                elif self.fineA[k][i] == max_fine['fine']:
                     if line[0].price == min_line[0].price:
-                        if self.find_capacity(line[0], i, False)[0] <= \
-                                self.find_capacity(min_line[0], min_fine['index'],
-                                                   min_fine['horizontal'])[0]:
+                        if self.find_capacity(line[0], i, True)[0] <= \
+                                self.find_capacity(min_line[0], max_fine['index'],
+                                                   max_fine['horizontal'])[0]:
                             continue
                     elif line[0].price > min_line[0].price:
                         continue
 
                 min_line = line
-                min_fine['fine'] = self.fineA[k][i]
-                min_fine['horizontal'] = True
-                min_fine['index'] = i
+                max_fine['fine'] = self.fineA[k][i]
+                max_fine['horizontal'] = True
+                max_fine['index'] = i
 
-            capacity, index = self.find_capacity(min_line[0], min_fine['index'], min_fine['horizontal'])
+            capacity, index = self.find_capacity(min_line[0], max_fine['index'], max_fine['horizontal'])
 
             min_line[0].capacity = capacity
             self.a_matrix[k][index[0]] -= capacity
@@ -102,9 +99,20 @@ class Fogel_method(Method):
                 self.fineB.append(self.fineB[k][:])
                 k += 1
 
+            if len(min_line) == 1:
+                if max_fine['horizontal']:
+                    self.fineA[k][max_fine['index']] = ''
+                else:
+                    self.fineB[k][max_fine['index']] = ''
+
+            print(self.fineA)
+            print(self.fineB)
             self.print_matrix()
 
-    def get_fine(self, line):
+    def get_fine(self, line, need):
+        if need == 0:
+            return ''
+
         if len(line) > 1:
             return abs(line[0].price - line[1].price)
         elif len(line) == 1:
