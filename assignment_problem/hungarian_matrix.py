@@ -121,27 +121,29 @@ class HungM_method(Method):
             if i < 5:
                 if self.marks_hor[i] != '+':
                     for j in range(0, num_col):
-                        if self.matrix[j][i].capacity == 0 and self.matrix[j][i].sign == '':
-                            self.matrix[j][i].sign = "'"
-                            self.matrix[j][i].index = index
+                        if self.marks_vert[j] != '+':
+                            if self.matrix[j][i].capacity == 0 and self.matrix[j][i].sign == '':
+                                self.matrix[j][i].sign = "'"
+                                self.matrix[j][i].index = index
 
-                            for k in range(1, num_col + 1):
-                                if self.matrix[j][(i + k) % num_col].sign == '*':
-                                    self.marks_hor[(i + k) % num_col] = '[+  ]'
-                                    self.index_hor[(i + k) % num_col] = index
-                                    self.marks_vert[j] = '+'
-                                    self.index_vert[j] = index
-                                    break
-                                if k == num_col:
-                                    self._create_table('', state='A1')
-                                    self.create_formate((iteration, row))
-                                    mas.append(j)
-                                    mas.append((i + k) % num_col)
-                                    return 'A2', iteration, row + 1, mas
+                                for k in range(1, num_col + 1):
+                                    if self.matrix[j][(i + k) % num_col].sign == '*' \
+                                            and self.marks_hor[(i + k) % num_col] == '+':
+                                        self.marks_hor[(i + k) % num_col] = '[+  ]'
+                                        self.index_hor[(i + k) % num_col] = index
+                                        self.marks_vert[j] = '+'
+                                        self.index_vert[j] = index
+                                        break
+                                    if k == num_col:
+                                        self._create_table('', state='A1')
+                                        self.create_formate((iteration, row))
+                                        mas.append(j)
+                                        mas.append((i + k) % num_col)
+                                        return 'A2', iteration, row + 1, mas
 
-                            index += 1
-                            i = -1
-                            break
+                                index += 1
+                                i = -1
+                                break
             else:
                 self._create_table('', state='A1')
                 self.create_formate((iteration, row))
@@ -239,7 +241,6 @@ class HungM_method(Method):
 
     def search_min_in_a3(self):
         num_col = len(self.matrix)
-        reduced_matrix = []
         _min = 1000000
 
         for i in range(num_col):
@@ -251,12 +252,13 @@ class HungM_method(Method):
 
         for i in range(num_col):
             if self.marks_vert[i] == '':
+                self.reduct_vert[i] = _min
                 for j in range(num_col):
-                    if self.marks_hor[j] == '+':
+                    if self.marks_hor[j] == '':
                         if self.matrix[i][j].capacity == _min:
                             self.matrix[i][j].accentuation = 1
-                            self.reduct_vert[i] = _min
-                            self.reduct_hor_plus[j] = _min
+                    else:
+                        self.reduct_hor_plus[j] = _min
 
         return _min
 
@@ -280,6 +282,8 @@ class HungM_method(Method):
                 self.marks_hor[i] = ''
             self.index_hor[i] = ''
             self.index_vert[i] = ''
+            for j in range(num_col):
+                self.matrix[i][j].index = ''
 
         _min = self.search_min_in_a3()
 
