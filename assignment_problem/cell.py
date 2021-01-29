@@ -10,3 +10,4 @@ class Cell:
         self.index = ''
         self.accentuation = 0
         self.plus_or_sine = ''     # для графического
+        self.plus_or_sine = ''     # для графического

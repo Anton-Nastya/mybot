@@ -57,17 +57,6 @@ class HungG_method(Method):
                                      'РЕДУКЦИЯ ПО СТРОКАМ', (0, 2))
         return 'P1', iteration, row + 1, mas
 
-# --------------------------------------Завершение подготовительного этапа----------------------------------------------
-
-    def print_p1(self, iteration, row, mas):
-        for i in range(len(self.reduct_vert)):
-            self.reduct_vert[i] = ''
-
-        self._create_table('')
-        self.create_formate((iteration, row))
-
-        return 'P2', iteration + 1, 1, mas
-
 # ---------------------------------------------Проверка совершенности---------------------------------------------------
 
     def search_ind_zer_in_row(self, j_zero):
@@ -78,99 +67,31 @@ class HungG_method(Method):
                 return False
         return True
 
-    def search_ind_zer_in_col(self, i_zero):
-        num_col = len(self.matrix)
-
-        for i in range(0, num_col):
-            if self.matrix[i][i_zero].plus_or_sine == '-':
-                return False
-        return True
-
-    def preparatory_stage_p2(self, iteration, row, mas):
+    def preparatory_stage_p1(self, iteration, row, mas):
         num_col = len(self.matrix)
         num_zer_with_sine = 0
+
+        self.set_default()
 
         for i in range(0, num_col):
             for j in range(0, num_col):
                 if self.matrix[j][i].capacity == 0:
-                    if self.search_ind_zer_in_row(j) and self.search_ind_zer_in_col(i):
+                    if self.search_ind_zer_in_row(j):
                         self.matrix[j][i].plus_or_sine = '-'
                         num_zer_with_sine += 1
-                    else:
-                        self.matrix[j][i].plus_or_sine = '+'
+                        break
 
-        self._create_table(f'ИТЕРАЦИЯ {iteration}')
+        self._create_table('')
         self.create_formate((iteration, row))
 
-        if num_zer_with_sine == num_col:
-            return 'F1', iteration, row + 1, mas
-
         mas.append(num_zer_with_sine)
-        return 'A5', iteration, row + 1, mas
+
+        return 'A5', iteration + 1, 1, mas
 
     # ------------------------------------------Поиск зависимых нулей---------------------------------------------------
 
-    def field_preparation(self):
-        num_col = len(self.matrix)
-
-        for i in range(num_col):
-            self.marks_hor[i] = f'y{i}'
-            self.marks_vert[i] = f'x{i}'
-
-        for i in range(num_col):
-            self.accent_hor[i] = 1
-            self.accent_vert[i] = 1
-        for i in range(num_col):
-            for j in range(num_col):
-                if self.matrix[i][j].plus_or_sine == '-':
-                    self.accent_hor[j] = 0
-                    self.accent_vert[i] = 0
-
-
     def a5(self, iteration, row, mas):
-        num_col = len(self.matrix)
-        self.field_preparation()
-
-        start_options = []
-        for i in range(num_col):
-            if self.accent_vert[i] == 1:
-                start_options.append(i)
-        mas.append(self)
-        start_position = start_options.pop()
-        mas.append(start_options)
-
-        step = 0
-        i = start_position
-        while True:
-            for j in range(num_col):
-                self.marks2_vert[i] = f'{i}'
-                self.index2_vert[i] = step
-                step += 1
-                if self.matrix[i][j].plus_or_sine == '+' \
-                        and self.marks2_hor[j] == '':
-                     self.marks2_vert[i] = f'[{i}  ]'
-                     for k in range(1, num_col + 1):
-                         if self.matrix[j][(i + k) % num_col].plus_or_sine == '-' \
-                                and self.marks2_vert[j] == '':
-                             self.marks2_vert[j] = f'{i}'
-
-
-
-
-
-
-
-
-
-
-                
-
-
-
-        self._create_table('', state='A5')
-        self.create_formate((iteration, row))
-
-        return 'A', iteration, row + 1, mas
+        pass
 
     # ---------------------------------Поиск цикла и инвентирование знаков----------------------------------------------
 
