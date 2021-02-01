@@ -6,6 +6,7 @@ class Fogel_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'fogel'
+        self.method_short_name = 'F'
         self.col_num = len(self.matrix[0])
         self.row_num = len(self.matrix)
 

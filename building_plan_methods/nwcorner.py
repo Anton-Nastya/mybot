@@ -5,6 +5,7 @@ class NW_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'nwcorner'
+        self.method_short_name = 'NW'
 
     def solution_of_matrix(self):
         row_num = len(self.matrix)

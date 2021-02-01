@@ -12,6 +12,7 @@ class Method:
         self.a_matrix = []
         self.b_matrix = []
         self.name = ''
+        self.method_short_name = '';
 
         self.U = []
         self.V = []
@@ -70,7 +71,7 @@ class Method:
 
         padding = 6
 
-        draw.text((padding, padding), "NW", font=font, fill='black')
+        draw.text((padding, padding), self.method_short_name, font=font, fill='black')
 
         for i in range(1, col_num - 1):
             draw.text((cell_size[0] * i + padding, padding), "T{}".format(i), font=font, fill='black')

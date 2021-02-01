@@ -16,6 +16,15 @@ def str_E(num, E):
             sign = '+'
         return str(num) + sign + str(abs(E)) + 'E'
 
+def get_min_value(num1, num2):
+    num1_val = num1[0] + num1[1] / 1000000
+    num2_val = num2[0] + num2[1] / 1000000
+
+    if num1_val <= num2_val:
+        return num1
+    else:
+        return num2
+
 
 class MethodE:
     def __init__(self, matrix, bot, message):

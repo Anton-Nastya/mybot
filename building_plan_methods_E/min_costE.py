@@ -1,19 +1,5 @@
-from building_plan_methods_E.parent_methodE import MethodE
+from building_plan_methods_E.parent_methodE import MethodE, get_min_value
 import copy
-
-
-def get_min_value(num1, num2):
-    num1 = num1.copy()
-    num2 = num2.copy()
-    if num1[0] > num2[0]:
-        return num2
-    elif num1[0] < num2[0]:
-        return num1
-    else:
-        if num1[1] >= num2[1]:
-            return num2
-        else:
-            return num1
 
 
 class Min_cost_methodE(MethodE):
