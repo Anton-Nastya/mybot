@@ -81,11 +81,9 @@ class Method:
         for i in range(num_col):
             _list.append(default)
 
-    def create_empty_formate(self):
+    def create_empty_formate(self, pic_in_height=7, pic_in_width=5):
         col_num = len(self.matrix)
         picture_size = col_num * self.cell_size + 2 * self.frame_width
-        pic_in_height = 7
-        pic_in_width = 4
 
         form = Image.new('RGBA', (pic_in_width * picture_size, pic_in_height * picture_size), 'white')
         form.save(f"pictures/{self.name}_formate{self.message.from_user.id}.png")
@@ -93,12 +91,19 @@ class Method:
 
     def create_formate(self, position):
         col_num = len(self.matrix)
+
         picture_size = col_num * self.cell_size + 2 * self.frame_width
         coordinates = [position[0] * picture_size,
                        position[1] * picture_size]
 
         form = Image.open(f"pictures/{self.name}_formate{self.message.from_user.id}.png")
         img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
+
+        width_form, height_form = form.size
+        if position[0] > 3:
+            form.crop((0, 0, width_form + picture_size, height_form))
+        if position[1] > 6:
+            form.crop((0, 0, width_form, height_form + picture_size))
 
         form.paste(img, (coordinates[0], coordinates[1]))
 

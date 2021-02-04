@@ -150,32 +150,17 @@ class HungG_method(Method):
             if self.search_ind_zer_in_col(j):
                 self.accent_hor[j] = 1
 
-        while True:
-            # ищем аугментальную цепь
-            exit_key_after_a5, chains = self.search_for_augmental_chains_a5(queue.pop())
+        # ищем аугментальную цепь
+        exit_key_after_a5, chains = self.search_for_augmental_chains_a5(queue.pop())
 
-            # определяем дальнейшие действия
-            if exit_key_after_a5:
-                # аугментальная цепь успешно найдена
-                self.strings = chains
-                self._create_table('', state='A5')
-                self.create_formate((self.iteration, self.row))
-                self.row += 1
-                break
-            else:
-                # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
-                if self.search_for_minimums_a7():
-                    self._create_table('', state='A5')
-                    self.create_formate((self.iteration, self.row))
-                    self.row += 1
-                    self._create_table('', state='A7')
-                    self.create_formate((self.iteration, self.row))
-                    self.row += 1
-                    self.a7()
-
-        # аугментальная цепь успешно найдена, строим ее (А6)
+        # определяем дальнейшие действия
         if exit_key_after_a5:
+           # аугментальная цепь успешно найдена, строим ее (А6)
+            self.strings = chains
+            self._create_table('', state='A5')
+            self.create_formate((self.iteration, self.row))
             self.a6()
+            self.row += 1
             self._create_table('', state='A6')
             self.create_formate((self.iteration, self.row))
 
@@ -183,8 +168,24 @@ class HungG_method(Method):
             self.iteration += 1
             self.set_def(self.marks_hor)
             self.set_def(self.marks_vert)
-
             return self.check_of_perfection_p2()
+        else:
+            # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
+            self._create_table('', state='A5')
+            self.create_formate((self.iteration, self.row))
+            self.row += 1
+
+            self.search_for_minimums_a7()
+            self._create_table('', state='A7')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+
+            for i in range(num_col):
+                for j in range(num_col):
+                    self.matrix[i][j].set_default()
+            self.strings = []
+            return self.p2()
 
     def search_for_augmental_chains_a5(self, start):
         col_num = len(self.matrix)
@@ -239,7 +240,7 @@ class HungG_method(Method):
 
         return exit_key, chains
 
-    # ---------------------------------Поиск цикла и инвентирование знаков----------------------------------------------
+    # ----------------------------------------Инвентирование знаков-----------------------------------------------------
 
     def a6(self):
         self.set_def(self.marks2_hor)
@@ -271,41 +272,53 @@ class HungG_method(Method):
             except:
                 break
 
-
-
-
-
-
-
     # ----------------------------------------Редукция свободных элементов----------------------------------------------
 
     def search_for_minimums_a7(self):
         num_col = len(self.matrix)
-        print('\n\n\n-------------------------A7----------------------\n\n\n')
+
+        self.set_def(self.marks_hor)
+        self.set_def(self.marks_vert)
+        self.set_def(self.index2_hor)
+        self.set_def(self.index2_vert)
+        self.set_def(self.accent_vert, default=0)
+        self.set_def(self.accent_hor, default=0)
 
         for i in range(num_col):
             if self.marks2_hor[i] != '':
-                self.marks2_hor[i] = '+'
+                self.marks_hor[i] = '+'
             if self.marks2_vert[i] != '':
-                self.marks2_vert[i] = '+'
+                self.marks_vert[i] = '+'
+
+        self.set_def(self.marks2_hor)
+        self.set_def(self.marks2_vert)
 
         W = []
         for i in range(num_col):
             for j in range(num_col):
-                if self.marks2_vert[i] == '+' and self.marks2_hor[j] == '':
+                if self.marks_vert[i] == '+' and self.marks_hor[j] == '':
                     W.append(self.matrix[i][j].capacity)
 
         _min = min(W)
+        self.strings = f'h={_min}'
+        self._create_table('', state='A7')
+        self.create_formate((self.iteration, self.row))
+        self.row += 1
+
+        for i in range(num_col):
+            if self.marks2_vert[i] == '+':
+                self.marks2_vert[i] = f'-{_min}'
+            if self.marks2_hor[i] == '+':
+                self.marks2_hor[i] = f'+{_min}'
+
         for i in range(num_col):
             for j in range(num_col):
-                if self.marks2_vert[i] == '+':
-                    self.marks2_vert[i] = f'-{_min}'
+                if self.marks_vert[i] != '':
                     self.matrix[i][j].capacity -= _min
-                if self.marks2_hor[j] == '+':
-                    self.marks2_vert[j] = f'+{_min}'
+                if self.marks_hor[j] != '':
                     self.matrix[i][j].capacity += _min
 
-        self.strings = f'h={_min}'
+
 
 
     def a7(self):
