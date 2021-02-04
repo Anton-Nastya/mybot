@@ -75,6 +75,11 @@ class Method:
             self.index2_vert.append('')
             self.h = ''
 
+    def set_def(self, _list, default=''):
+        num_col = len(self.matrix)
+        _list.clear()
+        for i in range(num_col):
+            _list.append(default)
 
     def create_empty_formate(self):
         col_num = len(self.matrix)
@@ -275,23 +280,29 @@ class Method:
                           '_', font=font, fill='black')                                               # заполнение подчеркиваний на вертикальных нижних метках
 
         if (len(self.strings) > 0):
-            arrows = ['<-', '<=', '=>', '->']
-            cycles = ''
-            for i in range(len(self.strings)):
-                cycles += self.strings[i]
-                cycles += arrows[i % 2]
-            cycles = cycles[0:-2]
-            cycles_size = font_index.getsize(cycles)
-            draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
-                       self.frame_width + m_side_size + 3), cycles, font=font_index, fill='black')
-            cycles = ''
-            for i in range(len(self.strings)):
-                cycles += self.strings[i]
-                cycles += arrows[i % 2 + 2]
-            cycles = cycles[0:-2]
-            cycles_size = font_index.getsize(cycles)
-            draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
-                       self.frame_width + m_side_size + 18), cycles, font=font_index, fill='black')
+            if type(self.strings) is list:
+                arrows = ['<-', '<=', '=>', '->']
+                cycles = ''
+                for i in range(len(self.strings)):
+                    cycles += self.strings[i]
+                    cycles += arrows[i % 2]
+                cycles = cycles[0:-2]
+                cycles_size = font_index.getsize(cycles)
+                draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
+                           self.frame_width + m_side_size + 3), cycles, font=font_index, fill='black')
+                cycles = ''
+                for i in range(len(self.strings)):
+                    cycles += self.strings[i]
+                    cycles += arrows[i % 2 + 2]
+                cycles = cycles[0:-2]
+                cycles_size = font_index.getsize(cycles)
+                draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
+                           self.frame_width + m_side_size + 18), cycles, font=font_index, fill='black')
+
+            elif type(self.strings) is str:
+                str_size = font_index.getsize(self.strings)
+                draw.text(((2 * self.frame_width + m_side_size - str_size[0]) / 2,
+                           self.frame_width + m_side_size + 3), self.strings, font=font_index, fill='black')
 
 
 

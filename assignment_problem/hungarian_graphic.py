@@ -92,7 +92,7 @@ class HungG_method(Method):
         self.row = 1
         self.iteration += 1
 
-    def check_of_perfection_p2(self):
+    def p2(self):
         num_col = len(self.matrix)
         num_independent_zer = 0
 
@@ -108,6 +108,18 @@ class HungG_method(Method):
                         num_independent_zer += 1
                     else:
                         self.matrix[j][i].plus_or_sine = '+'
+
+        return self.check_of_perfection_p2(num_independent_zer=num_independent_zer)
+
+    def check_of_perfection_p2(self, num_independent_zer=-1):
+        num_col = len(self.matrix)
+
+        if num_independent_zer == -1:
+            num_independent_zer = 0
+            for i in range(num_col):
+                for j in range(num_col):
+                    if self.matrix[j][i].plus_or_sine == '-':
+                        num_independent_zer += 1
 
         self._create_table(f'ИТЕРАЦИЯ {self.iteration}')
         self.create_formate((self.iteration, self.row))
@@ -140,17 +152,20 @@ class HungG_method(Method):
 
         while True:
             # ищем аугментальную цепь
-            exit_key_after_a5 = self.search_for_augmental_chains_a5(queue.pop())
-            self._create_table('', state='A5')
-            self.create_formate((self.iteration, self.row))
+            exit_key_after_a5, chains = self.search_for_augmental_chains_a5(queue.pop())
 
             # определяем дальнейшие действия
             if exit_key_after_a5:
                 # аугментальная цепь успешно найдена
+                self.strings = chains
+                self._create_table('', state='A5')
+                self.create_formate((self.iteration, self.row))
+                self.row += 1
                 break
             else:
                 # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
                 if self.search_for_minimums_a7():
+                    self._create_table('', state='A5')
                     self.create_formate((self.iteration, self.row))
                     self.row += 1
                     self._create_table('', state='A7')
@@ -160,11 +175,20 @@ class HungG_method(Method):
 
         # аугментальная цепь успешно найдена, строим ее (А6)
         if exit_key_after_a5:
-            self.row += 1
             self.a6()
+            self._create_table('', state='A6')
+            self.create_formate((self.iteration, self.row))
+
+            self.row = 1
+            self.iteration += 1
+            self.set_def(self.marks_hor)
+            self.set_def(self.marks_vert)
+
+            return self.check_of_perfection_p2()
 
     def search_for_augmental_chains_a5(self, start):
         col_num = len(self.matrix)
+        chains = []
 
         self.accent_vert[start] = 1
         i = start
@@ -182,6 +206,7 @@ class HungG_method(Method):
                     self.marks2_vert[i] = f'{count_for_marks} '
                     self.index2_vert[i] = index_for_marks
                     exit_key = 0
+                    chains.insert(0, self.marks_vert[i])
                     break
                 elif self.matrix[i][j].plus_or_sine == '+':
                     horizontal = not horizontal
@@ -190,6 +215,7 @@ class HungG_method(Method):
                     count_for_marks += 1
                     index_for_marks = i + 1
                     steps_count = 0
+                    chains.insert(0, self.marks_vert[i])
                 else:
                     j = (j + 1) % col_num
             else:
@@ -198,6 +224,7 @@ class HungG_method(Method):
                     self.marks2_hor[j] = f'{count_for_marks} '
                     self.index2_hor[j] = index_for_marks
                     exit_key = 1
+                    chains.insert(0, self.marks_hor[j])
                     break
                 elif self.matrix[i][j].plus_or_sine == '-':
                     horizontal = not horizontal
@@ -206,15 +233,49 @@ class HungG_method(Method):
                     count_for_marks += 1
                     index_for_marks = i + 1
                     steps_count = 0
+                    chains.insert(0, self.marks_hor[j])
                 else:
                     i = (i - 1) % col_num
 
-        return exit_key
+        return exit_key, chains
 
     # ---------------------------------Поиск цикла и инвентирование знаков----------------------------------------------
 
     def a6(self):
-        print('\n\n\n-------------------------A6----------------------\n\n\n')
+        self.set_def(self.marks2_hor)
+        self.set_def(self.marks2_vert)
+        self.set_def(self.index2_hor)
+        self.set_def(self.index2_vert)
+        self.set_def(self.accent_vert, default=0)
+        self.set_def(self.accent_hor, default=0)
+
+        plus = True
+        val1 = self.strings.pop()
+        val2 = self.strings.pop()
+
+        while True:
+            if plus:
+                ind1 = int(val1[-1]) - 1
+                ind2 = int(val2[-1]) - 1
+                self.matrix[ind1][ind2].plus_or_sine = '-'
+
+            else:
+                ind1 = int(val2[-1]) - 1
+                ind2 = int(val1[-1]) - 1
+                self.matrix[ind1][ind2].plus_or_sine = '+'
+
+            plus = not plus
+            val1 = val2
+            try:
+                val2 = self.strings.pop()
+            except:
+                break
+
+
+
+
+
+
 
     # ----------------------------------------Редукция свободных элементов----------------------------------------------
 

@@ -126,25 +126,20 @@ def hung_g_body(message):
         method.row_reduction_r2()
         method.print_p1()
 
-        with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
-            bot.send_document(message.from_user.id, pic)
-
-        queue = []
-
+        dark_rib_сounter = method.p2()
         while True:
-            dark_rib_сounter = method.check_of_perfection_p2()
             with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
                 bot.send_document(message.from_user.id, pic)
 
             if dark_rib_сounter == len(method.matrix):
                 break
             else:
-                method.a5()
+                dark_rib_сounter = method.a5()
 
-            method.select_optimal_appointments_f1(primary)
-            primary.output_sum_f2()
-            with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
-                bot.send_document(message.from_user.id, pic)
+        method.select_optimal_appointments_f1(primary)
+        primary.output_sum_f2()
+        with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
+            bot.send_document(message.from_user.id, pic)
 
 
         """algorithm = {'R1': method.col_reduction_r1,
