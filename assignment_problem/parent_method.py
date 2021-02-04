@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
+from collections import deque
 
 class Method:
     def __init__(self, matrix, bot, message):
@@ -19,9 +20,12 @@ class Method:
         self.index_vert = []    # индексы вертикальных меток
         self.index2_hor = []  # индексы горизонтальных меток для графического метода
         self.index2_vert = []  # индексы вертикальных меток для графического метода
-        self.cycles_strings = []    # аугментальная цепь
+        self.strings = []    # аугментальная цепь
+
         self.h = ''
         self.name = ''
+        self.iteration = 0
+        self.row = 1
 
         self.cell_size = 40
         self.frame_width = 80
@@ -248,7 +252,7 @@ class Method:
                        self.frame_width - self.cell_size - 2 * (index2_hor_size[1] - 5) + 10),
                       index2_hor_num, font=font_index, fill='black')                                 # заполнение горизонтальных индексов верхний ряд
 
-            draw.text((self.frame_width + 2 * self.cell_size + m_side_size - index2_vert_size[0] - 10,
+            draw.text((self.frame_width + 2 * self.cell_size + m_side_size - index2_vert_size[0] - 14,
                        self.frame_width + self.cell_size * i + (self.cell_size - index2_vert_size[1]) - 3),
                       index2_vert_num, font=font_index, fill='black')                                # заполнение вертикальных индексов верхний ряд
 
@@ -270,19 +274,19 @@ class Method:
                            self.frame_width + self.cell_size * i + (self.cell_size - marks_vert_size[1]) / 2 + 1),
                           '_', font=font, fill='black')                                               # заполнение подчеркиваний на вертикальных нижних метках
 
-        if (len(self.cycles_strings) > 0):
+        if (len(self.strings) > 0):
             arrows = ['<-', '<=', '=>', '->']
             cycles = ''
-            for i in range(len(self.cycles_strings)):
-                cycles += self.cycles_strings[i]
+            for i in range(len(self.strings)):
+                cycles += self.strings[i]
                 cycles += arrows[i % 2]
             cycles = cycles[0:-2]
             cycles_size = font_index.getsize(cycles)
             draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
                        self.frame_width + m_side_size + 3), cycles, font=font_index, fill='black')
             cycles = ''
-            for i in range(len(self.cycles_strings)):
-                cycles += self.cycles_strings[i]
+            for i in range(len(self.strings)):
+                cycles += self.strings[i]
                 cycles += arrows[i % 2 + 2]
             cycles = cycles[0:-2]
             cycles_size = font_index.getsize(cycles)
