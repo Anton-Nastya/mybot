@@ -1,8 +1,5 @@
 from assignment_problem.parent_method import Method
-from collections import deque
-from copy import deepcopy
 import numpy  # numpy==1.19.3
-
 
 
 class HungG_method(Method):
@@ -176,15 +173,16 @@ class HungG_method(Method):
             self.row += 1
 
             self.search_for_minimums_a7()
-            self._create_table('', state='A7')
-            self.create_formate((self.iteration, self.row))
-            self.row = 1
-            self.iteration += 1
 
             for i in range(num_col):
                 for j in range(num_col):
                     self.matrix[i][j].set_default()
             self.strings = []
+            self._create_table('', state='A7')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+
             return self.p2()
 
     def search_for_augmental_chains_a5(self, start):
@@ -232,7 +230,7 @@ class HungG_method(Method):
                     self.marks2_hor[j] = f'[{count_for_marks} ]'
                     self.index2_hor[j] = index_for_marks
                     count_for_marks += 1
-                    index_for_marks = i + 1
+                    index_for_marks = j + 1
                     steps_count = 0
                     chains.insert(0, self.marks_hor[j])
                 else:
@@ -306,10 +304,10 @@ class HungG_method(Method):
         self.row += 1
 
         for i in range(num_col):
-            if self.marks2_vert[i] == '+':
-                self.marks2_vert[i] = f'-{_min}'
-            if self.marks2_hor[i] == '+':
-                self.marks2_hor[i] = f'+{_min}'
+            if self.marks_vert[i] == '+':
+                self.marks_vert[i] = f'-{_min}'
+            if self.marks_hor[i] == '+':
+                self.marks_hor[i] = f'+{_min}'
 
         for i in range(num_col):
             for j in range(num_col):
@@ -317,14 +315,6 @@ class HungG_method(Method):
                     self.matrix[i][j].capacity -= _min
                 if self.marks_hor[j] != '':
                     self.matrix[i][j].capacity += _min
-
-
-
-
-    def a7(self):
-        pass
-
-
 
     # ---------------------------------------------Выбор * и завершение-------------------------------------------------
 
@@ -343,7 +333,6 @@ class HungG_method(Method):
 
         self.row += 1
         return 'F2', self.iteration, self.row
-
 
     def output_sum_f2(self):
         sum_list = []

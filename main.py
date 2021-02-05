@@ -13,8 +13,6 @@ from building_plan_methods_E.min_costE import Min_cost_methodE
 from assignment_problem.hungarian_matrix import HungM_method
 from assignment_problem.hungarian_graphic import HungG_method
 
-from collections import deque
-
 bot = telebot.TeleBot('1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw')
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
