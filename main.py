@@ -111,44 +111,30 @@ def hung_m_body(message):
 
 
 def hung_g_body(message):
-
+    try:
         primary = HungG_method(message.text, bot, message)
         method = HungG_method(message.text, bot, message)
 
         primary.build_matrix()
         method.build_matrix()
-
+    except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_graph")
-
+    else:
         method.col_reduction_r1()
         method.row_reduction_r2()
         method.print_p1()
 
-        dark_rib_сounter = method.p2()
+        dark_rib_counter = method.p2()
         while True:
-            with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
-                bot.send_document(message.from_user.id, pic)
-
-            if dark_rib_сounter == len(method.matrix):
+            if dark_rib_counter == len(method.matrix):
                 break
             else:
-                dark_rib_сounter = method.a5()
+                dark_rib_counter = method.a5()
 
         method.select_optimal_appointments_f1(primary)
         primary.output_sum_f2()
         with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
             bot.send_document(message.from_user.id, pic)
-
-
-        """algorithm = {'R1': method.col_reduction_r1,
-                     'R2': method.row_reduction_r2,
-                     'P1': method.print_p1,
-                     'P2': method.preparatory_stage_p2,
-                     'F1': method.select_optimal_appointments_f1,
-                     'A5': method.a5,
-                     'A6': method.a6,
-                     'A7': method.a7}"""
-
 
         bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
         bot.send_message(message.from_user.id, "Задача решена")

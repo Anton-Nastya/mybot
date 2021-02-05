@@ -29,6 +29,8 @@ class Method:
 
         self.cell_size = 40
         self.frame_width = 80
+        self.pic_in_height = 1
+        self.pic_in_width = 1
 
         matrix_list = matrix.split('\n')
         count = len(matrix_list)
@@ -84,11 +86,11 @@ class Method:
             _list.append(default)
 
 
-    def create_empty_formate(self, pic_in_height=5, pic_in_width=5):
+    def create_empty_formate(self):
         col_num = len(self.matrix)
         picture_size = col_num * self.cell_size + 2 * self.frame_width
 
-        form = Image.new('RGBA', (pic_in_width * picture_size, pic_in_height * picture_size), 'white')
+        form = Image.new('RGBA', (self.pic_in_width * picture_size, self.pic_in_height * picture_size), 'white')
         form.save(f"pictures/{self.name}_formate{self.message.from_user.id}.png")
 
 

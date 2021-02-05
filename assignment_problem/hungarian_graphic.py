@@ -6,6 +6,8 @@ class HungG_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'hung_graph'
+        self.pic_in_height = 5
+        self.pic_in_width = 5
 
     # --------------------------------------Построение введенной матрицы------------------------------------------------
     def build_matrix(self):
