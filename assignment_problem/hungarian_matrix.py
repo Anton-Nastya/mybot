@@ -47,14 +47,14 @@ class HungM_method(Method):
         return matrix
 
     def col_reduction_r1(self, iteration, row, mas):
-        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor, self.reduct_vert,
+        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor_top_inter, self.reduct_vert_right_inter,
                                     'РЕДУКЦИЯ ПО СТОЛБЦАМ', (0, 1))
         self.matrix = numpy.rot90(rot_matrix).tolist()
 
         return 'R2', iteration, row + 1, mas
 
     def row_reduction_r2(self, iteration, row, mas):
-        self.matrix = self.reduction(self.matrix, self.reduct_vert, self.reduct_hor,
+        self.matrix = self.reduction(self.matrix, self.reduct_vert_right_inter, self.reduct_hor_top_inter,
                                      'РЕДУКЦИЯ ПО СТРОКАМ', (0, 2))
         return 'P1', iteration, row + 1, mas
 
@@ -98,7 +98,7 @@ class HungM_method(Method):
         for i in range(0, num_col):
             for j in range(0, num_col):
                 if self.matrix[j][i].sign == '*':
-                    self.marks_hor[i] = '+'
+                    self.marks_hor_top_inter[i] = '+'
                     break
 
         self._create_table(f'ИТЕРАЦИЯ {iteration}')
@@ -119,20 +119,20 @@ class HungM_method(Method):
         while True:
             i += 1
             if i < 5:
-                if self.marks_hor[i] != '+':
+                if self.marks_hor_top_inter[i] != '+':
                     for j in range(0, num_col):
-                        if self.marks_vert[j] != '+':
+                        if self.marks_vert_right_inter[j] != '+':
                             if self.matrix[j][i].capacity == 0 and self.matrix[j][i].sign == '':
                                 self.matrix[j][i].sign = "'"
                                 self.matrix[j][i].index = index
 
                                 for k in range(1, num_col + 1):
                                     if self.matrix[j][(i + k) % num_col].sign == '*' \
-                                            and self.marks_hor[(i + k) % num_col] == '+':
-                                        self.marks_hor[(i + k) % num_col] = '[+  ]'
-                                        self.index_hor[(i + k) % num_col] = index
-                                        self.marks_vert[j] = '+'
-                                        self.index_vert[j] = index
+                                            and self.marks_hor_top_inter[(i + k) % num_col] == '+':
+                                        self.marks_hor_top_inter[(i + k) % num_col] = '[+  ]'
+                                        self.index_hor_top_inter[(i + k) % num_col] = index
+                                        self.marks_vert_right_inter[j] = '+'
+                                        self.index_vert_right_inter[j] = index
                                         break
                                     if k == num_col:
                                         self._create_table('', state='A1')
@@ -220,10 +220,10 @@ class HungM_method(Method):
         mas.clear()
 
         for i in range(num_col):
-            self.marks_hor[i] = ''
-            self.marks_vert[i] = ''
-            self.index_vert[i] = ''
-            self.index_hor[i] = ''
+            self.marks_hor_top_inter[i] = ''
+            self.marks_vert_right_inter[i] = ''
+            self.index_vert_right_inter[i] = ''
+            self.index_hor_top_inter[i] = ''
             for j in range(num_col):
                 self.matrix[i][j].index = ''
 
@@ -244,21 +244,21 @@ class HungM_method(Method):
         _min = 1000000
 
         for i in range(num_col):
-            if self.marks_vert[i] == '':
+            if self.marks_vert_right_inter[i] == '':
                 for j in range(num_col):
-                    if self.marks_hor[j] == '':
+                    if self.marks_hor_top_inter[j] == '':
                         if self.matrix[i][j].capacity <= _min:
                             _min = self.matrix[i][j].capacity
 
         for i in range(num_col):
-            if self.marks_vert[i] == '':
-                self.reduct_vert[i] = _min
+            if self.marks_vert_right_inter[i] == '':
+                self.reduct_vert_right_inter[i] = _min
                 for j in range(num_col):
-                    if self.marks_hor[j] == '':
+                    if self.marks_hor_top_inter[j] == '':
                         if self.matrix[i][j].capacity == _min:
                             self.matrix[i][j].accentuation = 1
                     else:
-                        self.reduct_hor_plus[j] = _min
+                        self.reduct_plus_hor_right_inter[j] = _min
 
         return _min
 
@@ -268,9 +268,9 @@ class HungM_method(Method):
 
         for i in range(num_col):
             for j in range(num_col):
-                if self.reduct_vert[i] == _min:
+                if self.reduct_vert_right_inter[i] == _min:
                     self.matrix[i][j].capacity -= _min
-                if self.reduct_hor_plus[j] == _min:
+                if self.reduct_plus_hor_right_inter[j] == _min:
                     self.matrix[i][j].capacity += _min
 
 
@@ -278,10 +278,10 @@ class HungM_method(Method):
         num_col = len(self.matrix)
 
         for i in range(num_col):
-            if self.marks_hor[i] == '[+  ]':
-                self.marks_hor[i] = ''
-            self.index_hor[i] = ''
-            self.index_vert[i] = ''
+            if self.marks_hor_top_inter[i] == '[+  ]':
+                self.marks_hor_top_inter[i] = ''
+            self.index_hor_top_inter[i] = ''
+            self.index_vert_right_inter[i] = ''
             for j in range(num_col):
                 self.matrix[i][j].index = ''
 
@@ -294,8 +294,8 @@ class HungM_method(Method):
 
         for i in range(num_col):
             for j in range(num_col):
-                self.reduct_vert[i] = ''
-                self.reduct_hor_plus[j] = ''
+                self.reduct_vert_right_inter[i] = ''
+                self.reduct_plus_hor_right_inter[j] = ''
                 if self.matrix[i][j].accentuation == 1:
                     self.matrix[i][j].accentuation = 0
 

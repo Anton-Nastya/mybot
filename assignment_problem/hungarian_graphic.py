@@ -47,14 +47,14 @@ class HungG_method(Method):
         return matrix
 
     def col_reduction_r1(self):
-        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor, self.reduct_vert,
+        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor_top_inter, self.reduct_vert_right_inter,
                                     'РЕДУКЦИЯ ПО СТОЛБЦАМ', (self.iteration, self.row))
         self.matrix = numpy.rot90(rot_matrix).tolist()
 
         self.row += 1
 
     def row_reduction_r2(self):
-        self.matrix = self.reduction(self.matrix, self.reduct_vert, self.reduct_hor,
+        self.matrix = self.reduction(self.matrix, self.reduct_vert_right_inter, self.reduct_hor_top_inter,
                                      'РЕДУКЦИЯ ПО СТРОКАМ', (self.iteration, self.row))
         self.row += 1
 
@@ -79,9 +79,9 @@ class HungG_method(Method):
     def print_p1(self):
         num_col = len(self.matrix)
 
-        del self.reduct_vert[:]
+        del self.reduct_vert_right_inter[:]
         for i in range(0, num_col):
-            self.reduct_vert.append('')
+            self.reduct_vert_right_inter.append('')
 
         self._create_table('')
         self.create_formate((self.iteration, self.row))
@@ -131,21 +131,21 @@ class HungG_method(Method):
         queue = []
 
         for i in range(num_col):
-            self.marks_hor[i] = f'y{i + 1}'
-            self.marks_vert[i] = f'x{i + 1}'
+            self.marks_hor_top_inter[i] = f'y{i + 1}'
+            self.marks_vert_left_inter[i] = f'x{i + 1}'
 
         # в цикле находим строки без независимых нулей
         # и сохраняем их в очередь, подчеркиваем такие строки
         for i in range(num_col):
             if self.search_ind_zer_in_row(i):
                 queue.append(i)
-                self.accent_vert[i] = 1
+                self.accent_vert_left_inter[i] = 1
 
         # в цикле ищем столбцы без независимых нулей
         # подчеркиваем такие столбцы
         for j in range(num_col):
             if self.search_ind_zer_in_col(j):
-                self.accent_hor[j] = 1
+                self.accent_hor_top_inter[j] = 1
 
         # ищем аугментальную цепь
         exit_key_after_a5, chains = self.search_for_augmental_chains_a5(queue.pop())
@@ -163,8 +163,8 @@ class HungG_method(Method):
 
             self.row = 1
             self.iteration += 1
-            self.set_def(self.marks_hor)
-            self.set_def(self.marks_vert)
+            self.set_def(self.marks_hor_top_inter)
+            self.set_def(self.marks_vert_left_inter)
             return self.check_of_perfection_p2()
         else:
             # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
@@ -189,7 +189,7 @@ class HungG_method(Method):
         col_num = len(self.matrix)
         chains = []
 
-        self.accent_vert[start] = 1
+        self.accent_vert_left_inter[start] = 1
         i = start
         j = 0
         horizontal = True
@@ -202,37 +202,37 @@ class HungG_method(Method):
             if horizontal:
                 steps_count += 1
                 if steps_count == (col_num + 1):
-                    self.marks2_vert[i] = f'{count_for_marks} '
-                    self.index2_vert[i] = index_for_marks
+                    self.marks_vert_left_exter[i] = f'{count_for_marks} '
+                    self.index_vert_left_exter[i] = index_for_marks
                     exit_key = 0
-                    chains.insert(0, self.marks_vert[i])
+                    chains.insert(0, self.marks_vert_left_inter[i])
                     break
                 elif self.matrix[i][j].plus_or_sine == '+':
                     horizontal = not horizontal
-                    self.marks2_vert[i] = f'[{count_for_marks} ]'
-                    self.index2_vert[i] = index_for_marks
+                    self.marks_vert_left_exter[i] = f'[{count_for_marks} ]'
+                    self.index_vert_left_exter[i] = index_for_marks
                     count_for_marks += 1
                     index_for_marks = i + 1
                     steps_count = 0
-                    chains.insert(0, self.marks_vert[i])
+                    chains.insert(0, self.marks_vert_left_inter[i])
                 else:
                     j = (j + 1) % col_num
             else:
                 steps_count += 1
                 if steps_count == (col_num + 1):
-                    self.marks2_hor[j] = f'{count_for_marks} '
-                    self.index2_hor[j] = index_for_marks
+                    self.marks_hor_top_exter[j] = f'{count_for_marks} '
+                    self.index_hor_top_exter[j] = index_for_marks
                     exit_key = 1
-                    chains.insert(0, self.marks_hor[j])
+                    chains.insert(0, self.marks_hor_top_inter[j])
                     break
                 elif self.matrix[i][j].plus_or_sine == '-':
                     horizontal = not horizontal
-                    self.marks2_hor[j] = f'[{count_for_marks} ]'
-                    self.index2_hor[j] = index_for_marks
+                    self.marks_hor_top_exter[j] = f'[{count_for_marks} ]'
+                    self.index_hor_top_exter[j] = index_for_marks
                     count_for_marks += 1
                     index_for_marks = j + 1
                     steps_count = 0
-                    chains.insert(0, self.marks_hor[j])
+                    chains.insert(0, self.marks_hor_top_inter[j])
                 else:
                     i = (i - 1) % col_num
 
@@ -241,12 +241,12 @@ class HungG_method(Method):
     # ----------------------------------------Инвентирование знаков-----------------------------------------------------
 
     def a6(self):
-        self.set_def(self.marks2_hor)
-        self.set_def(self.marks2_vert)
-        self.set_def(self.index2_hor)
-        self.set_def(self.index2_vert)
-        self.set_def(self.accent_vert, default=0)
-        self.set_def(self.accent_hor, default=0)
+        self.set_def(self.marks_hor_top_exter)
+        self.set_def(self.marks_vert_left_exter)
+        self.set_def(self.index_hor_top_exter)
+        self.set_def(self.index_vert_left_exter)
+        self.set_def(self.accent_vert_left_inter, default=0)
+        self.set_def(self.accent_hor_top_inter, default=0)
 
         plus = True
         val1 = self.strings.pop()
@@ -275,26 +275,26 @@ class HungG_method(Method):
     def search_for_minimums_a7(self):
         num_col = len(self.matrix)
 
-        self.set_def(self.marks_hor)
-        self.set_def(self.marks_vert)
-        self.set_def(self.index2_hor)
-        self.set_def(self.index2_vert)
-        self.set_def(self.accent_vert, default=0)
-        self.set_def(self.accent_hor, default=0)
+        self.set_def(self.marks_hor_top_inter)
+        self.set_def(self.marks_vert_left_inter)
+        self.set_def(self.index_hor_top_exter)
+        self.set_def(self.index_vert_left_exter)
+        self.set_def(self.accent_vert_left_inter, default=0)
+        self.set_def(self.accent_hor_top_inter, default=0)
 
         for i in range(num_col):
-            if self.marks2_hor[i] != '':
-                self.marks_hor[i] = '+'
-            if self.marks2_vert[i] != '':
-                self.marks_vert[i] = '+'
+            if self.marks_hor_top_exter[i] != '':
+                self.marks_hor_top_inter[i] = '+'
+            if self.marks_vert_left_exter[i] != '':
+                self.marks_vert_left_inter[i] = '+'
 
-        self.set_def(self.marks2_hor)
-        self.set_def(self.marks2_vert)
+        self.set_def(self.marks_hor_top_exter)
+        self.set_def(self.marks_vert_left_exter)
 
         W = []
         for i in range(num_col):
             for j in range(num_col):
-                if self.marks_vert[i] == '+' and self.marks_hor[j] == '':
+                if self.marks_vert_left_inter[i] == '+' and self.marks_hor_top_inter[j] == '':
                     W.append(self.matrix[i][j].capacity)
 
         _min = min(W)
@@ -304,16 +304,16 @@ class HungG_method(Method):
         self.row += 1
 
         for i in range(num_col):
-            if self.marks_vert[i] == '+':
-                self.marks_vert[i] = f'-{_min}'
-            if self.marks_hor[i] == '+':
-                self.marks_hor[i] = f'+{_min}'
+            if self.marks_vert_left_inter[i] == '+':
+                self.marks_vert_left_inter[i] = f'-{_min}'
+            if self.marks_hor_top_inter[i] == '+':
+                self.marks_hor_top_inter[i] = f'+{_min}'
 
         for i in range(num_col):
             for j in range(num_col):
-                if self.marks_vert[i] != '':
+                if self.marks_vert_left_inter[i] != '':
                     self.matrix[i][j].capacity -= _min
-                if self.marks_hor[j] != '':
+                if self.marks_hor_top_inter[j] != '':
                     self.matrix[i][j].capacity += _min
 
     # ---------------------------------------------Выбор * и завершение-------------------------------------------------

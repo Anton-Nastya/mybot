@@ -1,28 +1,28 @@
 from PIL import Image, ImageDraw, ImageFont
 from assignment_problem.cell import Cell
-from collections import deque
 
 class Method:
     def __init__(self, matrix, bot, message):
         self.message = message
         self.bot = bot
         self.matrix = []
-        self.marks_hor = []     # горизонтальные метки
-        self.marks_vert = []    # вертикальные метки
-        self.accent_hor = []     # подчеркивания в горизонтальных метках
-        self.accent_vert = []   # подчеркивания в вертикальных метках
-        self.marks2_hor = []    # горизонтальные метки виорой уровень для графического метода
-        self.marks2_vert = []   # вертикальные метки второй уровень для графического метода
-        self.reduct_hor = []    # редукция по столбцам
-        self.reduct_vert = []   # редукция по строкам
-        self.reduct_hor_plus = []  # редукция по строкам в а3 прибавление
-        self.index_hor = []     # индексы горизонтальных меток
-        self.index_vert = []    # индексы вертикальных меток
-        self.index2_hor = []  # индексы горизонтальных меток для графического метода
-        self.index2_vert = []  # индексы вертикальных меток для графического метода
-        self.strings = []    # аугментальная цепь
 
-        self.h = ''
+        self.marks_hor_top_inter = []           # горизонтальные верхние внутр метки
+        self.marks_hor_top_exter = []           # горизонтальные верхние внешние метки
+        self.marks_vert_right_inter = []        # вертикальные правые внутренние метки
+        self.marks_vert_left_inter = []         # вертикальные правые внутренние метки
+        self.marks_vert_left_exter = []         # вертикальные левые внешние метки
+        self.index_hor_top_inter = []           # индексы горизонтальных меток
+        self.index_vert_right_inter = []        # индексы вертикальных меток
+        self.index_hor_top_exter = []           # индексы горизонтальных меток для графического метода
+        self.index_vert_left_exter = []         # индексы вертикальных меток для графического метода
+        self.accent_hor_top_inter = []          # подчеркивания в горизонтальных метках
+        self.accent_vert_left_inter = []        # подчеркивания в вертикальных метках левые внутренние
+        self.reduct_hor_top_inter = []          # редукция по столбцам
+        self.reduct_vert_right_inter = []       # редукция по строкам
+        self.reduct_plus_hor_right_inter = []   # редукция по строкам в а3 прибавление
+        self.strings_bottom = []                # аугментальная цепь
+
         self.name = ''
         self.iteration = 0
         self.row = 1
@@ -46,34 +46,36 @@ class Method:
     def set_default(self):
         col_num = len(self.matrix)
 
-        self.marks_hor.clear()
-        self.marks_vert.clear()
-        self.accent_hor.clear()
-        self.accent_vert.clear()
-        self.marks2_hor.clear()
-        self.marks2_vert.clear()
-        self.reduct_hor.clear()
-        self.reduct_vert.clear()
-        self.index_hor.clear()
-        self.index_vert.clear()
-        self.index2_hor.clear()
-        self.index2_vert.clear()
+        self.marks_hor_top_inter.clear()
+        self.marks_vert_right_inter.clear()
+        self.marks_vert_left_inter.clear()
+        self.accent_hor_top_inter.clear()
+        self.accent_vert_left_inter.clear()
+        self.marks_hor_top_exter.clear()
+        self.marks_vert_left_exter.clear()
+        self.reduct_hor_top_inter.clear()
+        self.reduct_vert_right_inter.clear()
+        self.index_hor_top_inter.clear()
+        self.index_vert_right_inter.clear()
+        self.index_hor_top_exter.clear()
+        self.index_vert_left_exter.clear()
 
         for i in range(0, col_num):
-            self.marks_hor.append('')
-            self.marks_vert.append('')
-            self.accent_hor.append(0)
-            self.accent_vert.append(0)
-            self.marks2_hor.append('')
-            self.marks2_vert.append('')
-            self.reduct_hor_plus.append('')
-            self.reduct_hor.append('')
-            self.reduct_vert.append('')
-            self.index_hor.append('')
-            self.index_vert.append('')
-            self.index2_hor.append('')
-            self.index2_vert.append('')
-            self.h = ''
+            self.marks_hor_top_inter.append('')
+            self.marks_vert_right_inter.append('')
+            self.marks_vert_left_inter.append('')
+            self.accent_hor_top_inter.append(0)
+            self.accent_vert_left_inter.append(0)
+            self.marks_hor_top_exter.append('')
+            self.marks_vert_left_exter.append('')
+            self.reduct_plus_hor_right_inter.append('')
+            self.reduct_hor_top_inter.append('')
+            self.reduct_vert_right_inter.append('')
+            self.index_hor_top_inter.append('')
+            self.index_vert_right_inter.append('')
+            self.index_hor_top_exter.append('')
+            self.index_vert_left_exter.append('')
+
 
     def set_def(self, _list, default=''):
         num_col = len(self.matrix)
@@ -81,7 +83,8 @@ class Method:
         for i in range(num_col):
             _list.append(default)
 
-    def create_empty_formate(self, pic_in_height=7, pic_in_width=5):
+
+    def create_empty_formate(self, pic_in_height=5, pic_in_width=5):
         col_num = len(self.matrix)
         picture_size = col_num * self.cell_size + 2 * self.frame_width
 
@@ -172,8 +175,8 @@ class Method:
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
 
 
-    def _fill_around_table(self, col_num, marks_hor_size2=None):
-        m_side_size = self.cell_size * col_num
+    def _fill_around_table(self, col_num):
+        m_side_size = self.cell_size * col_num      # размер таблицы матрицы
 
         img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
         draw = ImageDraw.Draw(img)
@@ -183,49 +186,51 @@ class Method:
 
 
         for i in range(0, col_num):
-            if self.reduct_hor[i] == '':
+            if self.reduct_hor_top_inter[i] == '':
                 reduct_hor_num = ''
             else:
-                reduct_hor_num = '-' + str(self.reduct_hor[i])
+                reduct_hor_num = '-' + str(self.reduct_hor_top_inter[i])
             reduct_hor_size = font.getsize(reduct_hor_num)
 
-            if self.reduct_vert[i] == '':
+            if self.reduct_vert_right_inter[i] == '':
                 reduct_vert_num = ''
             else:
-                reduct_vert_num = '-' + str(self.reduct_vert[i])
+                reduct_vert_num = '-' + str(self.reduct_vert_right_inter[i])
             reduct_vert_size = font.getsize(reduct_vert_num)
 
-            if self.reduct_hor_plus[i] == '':
+            if self.reduct_plus_hor_right_inter[i] == '':
                 reduct_hor_plus_num = ''
             else:
-                reduct_hor_plus_num = '+' + str(self.reduct_hor_plus[i])
+                reduct_hor_plus_num = '+' + str(self.reduct_plus_hor_right_inter[i])
             reduct_hor_plus_size = font.getsize(reduct_hor_plus_num)
 
 
-            index_hor_num = str(self.index_hor[i])
+            index_hor_num = str(self.index_hor_top_inter[i])
             index_hor_size = font_index.getsize(index_hor_num)
 
-            index_vert_num = str(self.index_vert[i])
+            index_vert_num = str(self.index_vert_right_inter[i])
             index_vert_size = font_index.getsize(index_vert_num)
 
-            marks_hor_num = self.marks_hor[i]
-            marks_hor_size = font_index.getsize(self.marks_hor[i])
+            marks_hor_num = self.marks_hor_top_inter[i]
+            marks_hor_size = font_index.getsize(self.marks_hor_top_inter[i])
 
-            marks_vert_num = self.marks_vert[i]
-            marks_vert_size = font_index.getsize(self.marks_vert[i])
+            marks_vert_num = self.marks_vert_right_inter[i]
+            marks_vert_size = font_index.getsize(self.marks_vert_right_inter[i])
 
+            marks_vert_l_num = self.marks_vert_left_inter[i]
+            marks_vert_l_size = font_index.getsize(self.marks_vert_left_inter[i])
 
-            index2_hor_num = str(self.index2_hor[i])
+            index2_hor_num = str(self.index_hor_top_exter[i])
             index2_hor_size = font_index.getsize(index2_hor_num)
 
-            index2_vert_num = str(self.index2_vert[i])
+            index2_vert_num = str(self.index_vert_left_exter[i])
             index2_vert_size = font_index.getsize(index2_vert_num)
 
-            marks2_hor_num = self.marks2_hor[i]
-            marks2_hor_size = font_index.getsize(self.marks2_hor[i])
+            marks2_hor_num = self.marks_hor_top_exter[i]
+            marks2_hor_size = font_index.getsize(self.marks_hor_top_exter[i])
 
-            marks2_vert_num = self.marks2_vert[i]
-            marks2_vert_size = font_index.getsize(self.marks2_vert[i])
+            marks2_vert_num = self.marks_vert_left_exter[i]
+            marks2_vert_size = font_index.getsize(self.marks_vert_left_exter[i])
 
 
             draw.text((self.frame_width + self.cell_size * i + (self.cell_size - reduct_hor_size[0]) / 2,
@@ -257,12 +262,15 @@ class Method:
                        self.frame_width + self.cell_size * i + (self.cell_size - marks_vert_size[1]) / 2 - 2),
                       marks_vert_num, font=font, fill='black')                                      # заполнение меток вертикальных нижний ряд
 
+            draw.text((self.frame_width - self.cell_size + (self.cell_size - marks_vert_l_size[0]) / 2,
+                       self.frame_width + self.cell_size * i + (self.cell_size - marks_vert_l_size[1]) / 2 - 2),
+                      marks_vert_l_num, font=font, fill='black')                                    # заполнение меток вертикальных верхний ряд
 
-            draw.text((self.frame_width + self.cell_size * i + (self.cell_size - index2_hor_size[0] - 5),
+            draw.text((self.frame_width + self.cell_size * i + (self.cell_size - index2_hor_size[0] - 7),
                        self.frame_width - self.cell_size - 2 * (index2_hor_size[1] - 5) + 10),
                       index2_hor_num, font=font_index, fill='black')                                 # заполнение горизонтальных индексов верхний ряд
 
-            draw.text((self.frame_width + 2 * self.cell_size + m_side_size - index2_vert_size[0] - 14,
+            draw.text((self.frame_width - 2 * self.cell_size + (self.cell_size - marks2_vert_size[0]) / 2 + 20,
                        self.frame_width + self.cell_size * i + (self.cell_size - index2_vert_size[1]) - 3),
                       index2_vert_num, font=font_index, fill='black')                                # заполнение вертикальных индексов верхний ряд
 
@@ -270,45 +278,43 @@ class Method:
                        self.frame_width - self.cell_size - (self.cell_size + marks2_hor_size[1]) / 2 + 10),
                       marks2_hor_num, font=font, fill='black')                                        # заполнение меток горизонтальных верхний ряд
 
-            draw.text((self.frame_width + m_side_size + self.cell_size + (self.cell_size - marks2_vert_size[1]) / 2 - 10,
+            draw.text((self.frame_width - 2 * self.cell_size + (self.cell_size - marks2_vert_size[0]) / 2 + 5,
                        self.frame_width + self.cell_size * i + (self.cell_size - marks2_vert_size[1]) / 2 - 2),
                       marks2_vert_num, font=font, fill='black')                                       # заполнение меток вертикальных верхний ряд
 
-            if (self.accent_hor[i]):
+            if (self.accent_hor_top_inter[i]):
                 draw.text((self.frame_width + self.cell_size * i + (self.cell_size - marks_hor_size[0]) / 2,
                            self.frame_width - (self.cell_size + marks_hor_size[1]) / 2 + 3),          # заполнение подчеркиваний на горизонтальных нижних метках
                           '_', font=font, fill='black')
 
-            if (self.accent_vert[i]):
-                draw.text((self.frame_width + m_side_size + (self.cell_size - marks_vert_size[1]) / 2 - 5,
-                           self.frame_width + self.cell_size * i + (self.cell_size - marks_vert_size[1]) / 2 + 1),
+            if (self.accent_vert_left_inter[i]):
+                draw.text((self.frame_width - self.cell_size + (self.cell_size - marks_vert_l_size[0]) / 2 - 2,
+                           self.frame_width + self.cell_size * i + (self.cell_size - marks_vert_l_size[1]) / 2 + 2),
                           '_', font=font, fill='black')                                               # заполнение подчеркиваний на вертикальных нижних метках
 
-        if (len(self.strings) > 0):
-            if type(self.strings) is list:
+        if (len(self.strings_bottom) > 0):
+            if type(self.strings_bottom) is list:
                 arrows = ['<-', '<=', '=>', '->']
                 cycles = ''
-                for i in range(len(self.strings)):
-                    cycles += self.strings[i]
+                for i in range(len(self.strings_bottom)):
+                    cycles += self.strings_bottom[i]
                     cycles += arrows[i % 2]
                 cycles = cycles[0:-2]
                 cycles_size = font_index.getsize(cycles)
                 draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
                            self.frame_width + m_side_size + 3), cycles, font=font_index, fill='black')
                 cycles = ''
-                for i in range(len(self.strings)):
-                    cycles += self.strings[i]
+                for i in range(len(self.strings_bottom)):
+                    cycles += self.strings_bottom[i]
                     cycles += arrows[i % 2 + 2]
                 cycles = cycles[0:-2]
                 cycles_size = font_index.getsize(cycles)
                 draw.text(((2 * self.frame_width + m_side_size - cycles_size[0]) / 2,
                            self.frame_width + m_side_size + 18), cycles, font=font_index, fill='black')
 
-            elif type(self.strings) is str:
-                str_size = font_index.getsize(self.strings)
+            elif type(self.strings_bottom) is str:
+                str_size = font_index.getsize(self.strings_bottom)
                 draw.text(((2 * self.frame_width + m_side_size - str_size[0]) / 2,
-                           self.frame_width + m_side_size + 3), self.strings, font=font_index, fill='black')
-
-
+                           self.frame_width + m_side_size + 3), self.strings_bottom, font=font_index, fill='black')
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
