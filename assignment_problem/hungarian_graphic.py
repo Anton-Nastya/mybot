@@ -1,10 +1,13 @@
 from assignment_problem.parent_method import Method
 import numpy  # numpy==1.19.3
 
+
 class HungG_method(Method):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'hung_graph'
+        self.pic_in_height = 5
+        self.pic_in_width = 5
 
     # --------------------------------------Построение введенной матрицы------------------------------------------------
     def build_matrix(self):
@@ -45,30 +48,21 @@ class HungG_method(Method):
 
         return matrix
 
-    def col_reduction_r1(self, iteration, row, mas):
-        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor, self.reduct_vert,
-                                    'РЕДУКЦИЯ ПО СТОЛБЦАМ', (0, 1))
+    def col_reduction_r1(self):
+        print('R1')
+        rot_matrix = self.reduction(numpy.rot90(self.matrix, k=3).tolist(), self.reduct_hor_top_inter, self.reduct_vert_right_inter,
+                                    'РЕДУКЦИЯ ПО СТОЛБЦАМ', (self.iteration, self.row))
         self.matrix = numpy.rot90(rot_matrix).tolist()
 
-        return 'R2', iteration, row + 1, mas
+        self.row += 1
 
-    def row_reduction_r2(self, iteration, row, mas):
-        self.matrix = self.reduction(self.matrix, self.reduct_vert, self.reduct_hor,
-                                     'РЕДУКЦИЯ ПО СТРОКАМ', (0, 2))
-        return 'P1', iteration, row + 1, mas
+    def row_reduction_r2(self):
+        print('R2')
+        self.matrix = self.reduction(self.matrix, self.reduct_vert_right_inter, self.reduct_hor_top_inter,
+                                     'РЕДУКЦИЯ ПО СТРОКАМ', (self.iteration, self.row))
+        self.row += 1
 
-# --------------------------------------Завершение подготовительного этапа----------------------------------------------
-
-    def print_p1(self, iteration, row, mas):
-        for i in range(len(self.reduct_vert)):
-            self.reduct_vert[i] = ''
-
-        self._create_table('')
-        self.create_formate((iteration, row))
-
-        return 'P2', iteration + 1, 1, mas
-
-# ---------------------------------------------Проверка совершенности---------------------------------------------------
+# ---------------------------------------------Подготовительные этапы---------------------------------------------------
 
     def search_ind_zer_in_row(self, j_zero):
         num_col = len(self.matrix)
@@ -78,130 +72,476 @@ class HungG_method(Method):
                 return False
         return True
 
-    def search_ind_zer_in_col(self, i_zero):
+    def search_ind_zer_in_col(self, j):
         num_col = len(self.matrix)
 
         for i in range(0, num_col):
-            if self.matrix[i][i_zero].plus_or_sine == '-':
+            if self.matrix[i][j].plus_or_sine == '-':
                 return False
         return True
 
-    def preparatory_stage_p2(self, iteration, row, mas):
+    def print_p1(self):
+        print('P1')
         num_col = len(self.matrix)
-        num_zer_with_sine = 0
+
+        del self.reduct_vert_right_inter[:]
+        for i in range(0, num_col):
+            self.reduct_vert_right_inter.append('')
+
+        self._create_table('')
+        self.create_formate((self.iteration, self.row))
+
+        self.row = 1
+        self.iteration += 1
+
+    def p2(self, first=True):
+        print('P2')
+        num_col = len(self.matrix)
+        num_independent_zer = 0
+
+        if first:
+            self.set_default()
+
+        sine_zero_in_col = [False for i in range(num_col)]
+        if not first:
+            for j in range(0, num_col):
+                for i in range(0, num_col):
+                    if self.matrix[i][j].plus_or_sine == '-':
+                        sine_zero_in_col[j] = True
 
         for i in range(0, num_col):
-            for j in range(0, num_col):
-                if self.matrix[j][i].capacity == 0:
-                    if self.search_ind_zer_in_row(j) and self.search_ind_zer_in_col(i):
-                        self.matrix[j][i].plus_or_sine = '-'
-                        num_zer_with_sine += 1
-                    else:
-                        self.matrix[j][i].plus_or_sine = '+'
+            if first or not sine_zero_in_col[i]:
+                for j in range(0, num_col):
+                    if self.matrix[j][i].capacity == 0:
+                        if self.search_ind_zer_in_row(j) and not sine_zero_in_col[i]:
+                            self.matrix[j][i].plus_or_sine = '-'
+                            sine_zero_in_col[i] = True
+                            num_independent_zer += 1
+                        else:
+                            self.matrix[j][i].plus_or_sine = '+'
 
-        self._create_table(f'ИТЕРАЦИЯ {iteration}')
-        self.create_formate((iteration, row))
+        return self.check_of_perfection_p2(sine_zero_in_col)
 
-        if num_zer_with_sine == num_col:
-            return 'F1', iteration, row + 1, mas
+    def check_of_perfection_p2(self, sine_zero_in_col):
+        num_independent_zer = 0
+        for i in sine_zero_in_col:
+            if i:
+                num_independent_zer += 1
 
-        mas.append(num_zer_with_sine)
-        return 'A5', iteration, row + 1, mas
+        self._create_table(f'ИТЕРАЦИЯ {self.iteration}')
+        self.create_formate((self.iteration, self.row))
 
-    # ------------------------------------------Поиск зависимых нулей---------------------------------------------------
+        self.row += 1
+        print(f'-----ИТЕРАЦИЯ {self.iteration}')
+        print(f'Проверка совершенности: {num_independent_zer}')
+        return num_independent_zer
 
-    def field_preparation(self):
+    # ----------------------------------Поиск и построение аугметальной цепи--------------------------------------------
+
+    def a5(self):
+        print('А5')
         num_col = len(self.matrix)
+        queue = []
+        i = j = 0
 
         for i in range(num_col):
-            self.marks_hor[i] = f'y{i}'
-            self.marks_vert[i] = f'x{i}'
+            self.marks_hor_top_inter[i] = f'y{i + 1}'
+            self.marks_vert_left_inter[i] = f'x{i + 1}'
 
+        # в цикле находим строки без независимых нулей
+        # и сохраняем их в очередь, подчеркиваем такие строки строки и столбцы
+        # координаты найденных нулей заносим в очередь
         for i in range(num_col):
-            self.accent_hor[i] = 1
-            self.accent_vert[i] = 1
-        for i in range(num_col):
-            for j in range(num_col):
-                if self.matrix[i][j].plus_or_sine == '-':
-                    self.accent_hor[j] = 0
-                    self.accent_vert[i] = 0
+            if self.search_ind_zer_in_row(i):
+                for j in range(num_col):
+                    if self.matrix[i][j].plus_or_sine == '+':
+                        queue.append([(i, j)])
+                    if self.search_ind_zer_in_row(i):
+                        self.accent_vert_left_inter[i] = 1
+                    if self.search_ind_zer_in_col(j):
+                        self.accent_hor_top_inter[j] = 1
+        # обрабатываем случай, когда в строке не нашлось зависимых нулей(+)
+        if len(queue) == 0:
+            for i in range(num_col - 1, -1, -1):
+                if self.accent_vert_left_inter[i] == 1:
+                    queue.append([(i, -1)])
+                    break
 
+        # в прошлом шаге получили очередь состоящую из начал потенциальных аугментальных цепей
+        # достраиваем каждую такую цепь до конца и выбираем из них самую длинную, если таких несколько - последнюю
+        for chain in queue:
+            self.search_for_augmental_chains_a5(chain)
+        max_len = 0
+        max_chain = []
+        delete_list = []
+        # в некоторых матрицах после выполнения на определенных ауг цепях а7 появляются отрицательные числа,
+        # здесь мы проверяем и удаляем эти цепи
+        for i in range(len(queue)):
+            if len(queue[i]) % 2 == 0 and self.check_against_negative_values(queue[i]):
+                delete_list.insert(0, i)
+                continue
+        for num in delete_list:
+            queue.pop(num)
+        if len(queue) == 0:
+            return "Упс. Не найдены корректные пути решения.\n" \
+                   "Возможно, вам достался некорректный вариант, уточните у преподавателя.\n" \
+                   "Если это не помогло, обратитесь к разработчикам и опишите проблему, мы постараемся помочь. Мы:\n" \
+                   "TG: @prosto_toxa, @NesteaTea\n" \
+                   "ВК: nestea_tea261"
+        # выбираем из оставшихся цепей самую длинную, если таких несколько - последнюю
+        for chain in queue:
+            if len(chain) >= max_len:
+                max_len = len(chain)
+                max_chain = chain
 
-    def a5(self, iteration, row, mas):
-        num_col = len(self.matrix)
-        self.field_preparation()
-
-        start_options = []
-        for i in range(num_col):
-            if self.accent_vert[i] == 1:
-                start_options.append(i)
-        mas.append(self)
-        start_position = start_options.pop()
-        mas.append(start_options)
-
-        step = 0
-        i = start_position
-        while True:
-            for j in range(num_col):
-                self.marks2_vert[i] = f'{i}'
-                self.index2_vert[i] = step
-                step += 1
-                if self.matrix[i][j].plus_or_sine == '+' \
-                        and self.marks2_hor[j] == '':
-                     self.marks2_vert[i] = f'[{i}  ]'
-                     for k in range(1, num_col + 1):
-                         if self.matrix[j][(i + k) % num_col].plus_or_sine == '-' \
-                                and self.marks2_vert[j] == '':
-                             self.marks2_vert[j] = f'{i}'
-
-
-
-
-
-
-
-
-
-
-                
-
-
-
+        self.drawing_of_augmental_chain(max_chain)
         self._create_table('', state='A5')
-        self.create_formate((iteration, row))
+        self.create_formate((self.iteration, self.row))
+        self.row += 1
 
-        return 'A', iteration, row + 1, mas
+        if len(max_chain) > 1 and len(max_chain) % 2 != 0:
+            # аугментальная цепь успешно найдена, строим ее (А6)
+            self.a6()
 
-    # ---------------------------------Поиск цикла и инвентирование знаков----------------------------------------------
+            self._create_table('', state='A6')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+            self.set_def(self.marks_hor_top_inter)
+            self.set_def(self.marks_vert_left_inter)
 
-    def a6(self, iteration, row, mas):
-        pass
+            return self.p2(first=False)
+        else:
+            # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
+            self.search_for_minimums_a7()
+
+            self.strings_bottom = []
+            self._create_table('', state='A7')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+            self.set_def(self.marks_vert_left_inter)
+            self.set_def(self.marks_hor_top_inter)
+
+            return self.p2(first=False)
+
+    def check_against_negative_values(self, chain):
+        num_col = len(self.matrix)
+        marks_hor = [0 for i in range(num_col)]
+        marks_vert = [0 for i in range(num_col)]
+
+        for point in chain:
+            i = point[0]
+            j = point[1]
+            marks_hor[j] = 1
+            marks_vert[i] = 1
+
+        for i in range(num_col):
+            for j in range(num_col):
+                if marks_vert[i] == 1 and marks_hor[j] == 0:
+                    if self.matrix[i][j].capacity == 0:
+                        return True
+        return False
+
+    def drawing_of_augmental_chain(self, chain):
+        print(f'Рисуем цепь для {chain}')
+
+        index_for_marks = 0
+        string = []
+        k = 0
+        i = chain[k][0]
+        j = chain[k][1]
+
+        if chain[0][1] == -1:
+            self.marks_vert_left_exter[chain[0][0]] = f'{1} '
+            self.index_vert_left_exter[chain[0][0]] = 0
+        else:
+            for k in range(len(chain)):
+                i = chain[k][0]
+                j = chain[k][1]
+                if self.matrix[i][j].plus_or_sine == '+':
+                    self.marks_vert_left_exter[i] = f'[{k + 1} ]'
+                    self.index_vert_left_exter[i] = index_for_marks
+                    index_for_marks = i + 1
+                    string.insert(0, self.marks_vert_left_inter[i])
+                else:
+                    self.marks_hor_top_exter[j] = f'[{k + 1} ]'
+                    self.index_hor_top_exter[j] = index_for_marks
+                    index_for_marks = j + 1
+                    string.insert(0, self.marks_hor_top_inter[j])
+
+            if len(chain) > 0:
+                if self.matrix[i][j].plus_or_sine == '-':
+                    self.marks_vert_left_exter[i] = f'{k + 2} '
+                    self.index_vert_left_exter[i] = index_for_marks
+                    string.insert(0, self.marks_vert_left_inter[i])
+                else:
+                    self.marks_hor_top_exter[j] = f'{k + 2} '
+                    self.index_hor_top_exter[j] = index_for_marks
+                    string.insert(0, self.marks_hor_top_inter[j])
+
+            if len(chain) > 1 and len(chain) % 2 == 1:
+                self.strings_bottom = string
+
+    def search_for_augmental_chains_a5(self, chain):
+        print(f'Строим аугментальную цепь из {chain[0]}')
+        col_num = len(self.matrix)
+        horizontal = False
+
+        i = chain[0][0]
+        j = chain[0][1]
+        steps_count = 0
+        marks_for_y = [0 for i in range(col_num)]
+        marks_for_y[j] = 1
+
+        while True:
+            if horizontal:
+                j = (j + 1) % col_num
+                sought = '+'
+            else:
+                i = (i - 1) % col_num
+                sought = '-'
+
+            steps_count += 1
+
+            if steps_count == col_num:
+                break
+
+            if sought == '+' and marks_for_y[j] == 1:
+                continue
+            
+            if self.matrix[i][j].plus_or_sine != sought:
+                continue
+
+            chain.append((i, j))
+            marks_for_y[j] = 1
+            horizontal = not horizontal
+            steps_count = 0
+
+    """def a5(self):
+        print('А5')
+        num_col = len(self.matrix)
+        queue = []
+
+        for i in range(num_col):
+            self.marks_hor_top_inter[i] = f'y{i + 1}'
+            self.marks_vert_left_inter[i] = f'x{i + 1}'
+
+        # в цикле находим строки без независимых нулей
+        # и сохраняем их в очередь, подчеркиваем такие строки
+        for i in range(num_col):
+            if self.search_ind_zer_in_row(i):
+                queue.append(i)
+                self.accent_vert_left_inter[i] = 1
+
+        # в цикле ищем столбцы без независимых нулей
+        # подчеркиваем такие столбцы
+        for j in range(num_col):
+            if self.search_ind_zer_in_col(j):
+                self.accent_hor_top_inter[j] = 1
+
+        # ищем аугментальную цепь
+        exit_key_after_a5, chains = self.search_for_augmental_chains_a5(queue.pop())
+        print(f'Аугментальная цепь построена, код возврата {exit_key_after_a5}')
+        # определяем дальнейшие действия
+        if exit_key_after_a5:
+           # аугментальная цепь успешно найдена, строим ее (А6)
+            self.strings_bottom = chains
+            self._create_table('', state='A5')
+            self.create_formate((self.iteration, self.row))
+            self.a6()
+            self.row += 1
+            self._create_table('', state='A6')
+            self.create_formate((self.iteration, self.row))
+
+            self.row = 1
+            self.iteration += 1
+            self.set_def(self.marks_hor_top_inter)
+            self.set_def(self.marks_vert_left_inter)
+            return self.p2(first=False)
+        else:
+            # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
+            self._create_table('', state='A5')
+            self.create_formate((self.iteration, self.row))
+            self.row += 1
+
+            self.search_for_minimums_a7()
+
+            self.strings_bottom = []
+            self._create_table('', state='A7')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+
+            self.set_def(self.marks_vert_left_inter)
+            self.set_def(self.marks_hor_top_inter)
+
+            return self.p2(first=False)
+            
+        def search_for_augmental_chains_a5(self, start):
+
+        print('Поиск аугментальной цепи')
+        col_num = len(self.matrix)
+        chains = []
+
+        self.accent_vert_left_inter[start] = 1
+        i = start
+        j = 0
+        horizontal = True
+
+        count_for_marks = 1
+        index_for_marks = 0
+        steps_count = 0
+
+        while True:
+            if horizontal:
+                steps_count += 1
+                if steps_count == (col_num + 1):
+                    self.marks_vert_left_exter[i] = f'{count_for_marks} '
+                    self.index_vert_left_exter[i] = index_for_marks
+                    exit_key = 0
+                    chains.insert(0, self.marks_vert_left_inter[i])
+                    break
+                elif self.matrix[i][j].plus_or_sine == '+' and self.marks_hor_top_exter[j] == '':
+                    horizontal = not horizontal
+                    self.marks_vert_left_exter[i] = f'[{count_for_marks} ]'
+                    self.index_vert_left_exter[i] = index_for_marks
+                    count_for_marks += 1
+                    index_for_marks = i + 1
+                    steps_count = 0
+                    chains.insert(0, self.marks_vert_left_inter[i])
+                else:
+                    j = (j + 1) % col_num
+            else:
+                steps_count += 1
+                if steps_count == (col_num + 1):
+                    self.marks_hor_top_exter[j] = f'{count_for_marks} '
+                    self.index_hor_top_exter[j] = index_for_marks
+                    exit_key = 1
+                    chains.insert(0, self.marks_hor_top_inter[j])
+                    break
+                elif self.matrix[i][j].plus_or_sine == '-' and self.marks_vert_left_exter[i] == '':
+                    horizontal = not horizontal
+                    self.marks_hor_top_exter[j] = f'[{count_for_marks} ]'
+                    self.index_hor_top_exter[j] = index_for_marks
+                    count_for_marks += 1
+                    index_for_marks = j + 1
+                    steps_count = 0
+                    chains.insert(0, self.marks_hor_top_inter[j])
+                else:
+                    i = (i - 1) % col_num
+
+        return exit_key, chains"""
+
+    # ----------------------------------------Инвентирование знаков-----------------------------------------------------
+
+    def a6(self):
+        print('А6')
+        self.set_def(self.marks_hor_top_exter)
+        self.set_def(self.marks_vert_left_exter)
+        self.set_def(self.index_hor_top_exter)
+        self.set_def(self.index_vert_left_exter)
+        self.set_def(self.accent_vert_left_inter, default=0)
+        self.set_def(self.accent_hor_top_inter, default=0)
+
+        plus = True
+        val1 = self.strings_bottom.pop()
+        val2 = self.strings_bottom.pop()
+
+        while True:
+            if plus:
+                ind1 = int(val1[-1]) - 1
+                ind2 = int(val2[-1]) - 1
+                self.matrix[ind1][ind2].plus_or_sine = '-'
+
+            else:
+                ind1 = int(val2[-1]) - 1
+                ind2 = int(val1[-1]) - 1
+                self.matrix[ind1][ind2].plus_or_sine = '+'
+
+            plus = not plus
+            val1 = val2
+            try:
+                val2 = self.strings_bottom.pop()
+            except:
+                break
 
     # ----------------------------------------Редукция свободных элементов----------------------------------------------
 
-    def a7(self, iteration, row, mas):
-        pass
+    def search_for_minimums_a7(self):
+        print('А7')
+        num_col = len(self.matrix)
+
+        self.set_def(self.marks_hor_top_inter)
+        self.set_def(self.marks_vert_left_inter)
+        self.set_def(self.index_hor_top_exter)
+        self.set_def(self.index_vert_left_exter)
+        self.set_def(self.accent_vert_left_inter, default=0)
+        self.set_def(self.accent_hor_top_inter, default=0)
+
+        for i in range(num_col):
+            if self.marks_hor_top_exter[i] != '':
+                self.marks_hor_top_inter[i] = '+'
+            if self.marks_vert_left_exter[i] != '':
+                self.marks_vert_left_inter[i] = '+'
+
+        self.set_def(self.marks_hor_top_exter)
+        self.set_def(self.marks_vert_left_exter)
+
+        W = []
+        for i in range(num_col):
+            for j in range(num_col):
+                if self.marks_vert_left_inter[i] == '+' \
+                        and self.marks_hor_top_inter[j] == ''\
+                        and self.matrix[i][j].capacity != 0:
+                    W.append(self.matrix[i][j].capacity)
+
+        _min = min(W)
+        self.strings_bottom = f'h={_min}'
+        self._create_table('', state='A7')
+        self.create_formate((self.iteration, self.row))
+        self.row += 1
+
+        for i in range(num_col):
+            if self.marks_vert_left_inter[i] == '+':
+                self.marks_vert_left_inter[i] = f'-{_min}'
+            if self.marks_hor_top_inter[i] == '+':
+                self.marks_hor_top_inter[i] = f'+{_min}'
+
+        for i in range(num_col):
+            for j in range(num_col):
+                if self.marks_hor_top_inter[j] != '':
+                    self.matrix[i][j].capacity += _min
+                if self.marks_vert_left_inter[i] != '':
+                    self.matrix[i][j].capacity -= _min
+
+        for i in range(num_col):
+            for j in range(num_col):
+                if self.matrix[i][j].capacity == 0 and self.matrix[i][j].plus_or_sine == '':
+                    self.matrix[i][j].plus_or_sine = '+'
+                elif self.matrix[i][j].capacity != 0 and self.matrix[i][j].plus_or_sine != '':
+                    self.matrix[i][j].plus_or_sine = ''
 
     # ---------------------------------------------Выбор * и завершение-------------------------------------------------
 
-    def select_optimal_appointments_f1(self, iteration, row, mas):
-        primary = mas[0]
-        mas.clear()
+    def select_optimal_appointments_f1(self, primary_matrix):
+        print('F1')
         num_col = len(self.matrix)
-        primary.set_default()
+        primary_matrix.set_default()
 
         for i in range(0, num_col):
             for j in range(0, num_col):
-                primary.matrix[i][j].set_default()
-                primary.matrix[i][j].sign = self.matrix[i][j].sign
+                primary_matrix.matrix[i][j].set_default()
+                if self.matrix[i][j].plus_or_sine == '-':
+                    primary_matrix.matrix[i][j].sign = '*'
 
-        primary._create_table('ВЫБОР *')
-        primary.create_formate((iteration, row))
+        primary_matrix._create_table('ВЫБОР *')
+        primary_matrix.create_formate((self.iteration, self.row))
 
-        return 'F2', iteration, row + 1, mas
-
+        self.row += 1
 
     def output_sum_f2(self):
+        print('F2\n\n\n\n')
         sum_list = []
         num_col = len(self.matrix)
 
