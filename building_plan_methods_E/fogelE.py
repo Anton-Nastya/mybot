@@ -109,9 +109,6 @@ class Fogel_methodE(MethodE):
                 else:
                     self.fineB[k][max_fine['index']] = ''
 
-            """print(self.fineA)
-            print(self.fineB)
-            self.print_matrix()"""
         for i in range(self.row_num):
             self.fineA[-1][i] = ''
 
@@ -156,8 +153,6 @@ class Fogel_methodE(MethodE):
         return self.matrix
 
     def _fill_table(self, cell_size, row_num, col_num):
-        print(len(self.a_matrix) - 1)
-        print(self.a_matrix)
         img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
         draw = ImageDraw.Draw(img)
 
