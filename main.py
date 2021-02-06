@@ -83,6 +83,7 @@ def hung_m_body(message):
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_matrix")
     else:
+        bot.send_message(message.from_user.id, "Все введено верно.\nРешаю...")
         algorithm = {'R1': method.col_reduction_r1,
                     'R2': method.row_reduction_r2,
                     'P1': method.preparatory_stage_p1,
@@ -120,22 +121,23 @@ def hung_g_body(message):
     except:
         bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /hung_graph")
     else:
+        bot.send_message(message.from_user.id, "Все введено верно.\nРешаю...")
         method.col_reduction_r1()
         method.row_reduction_r2()
         method.print_p1()
 
         dark_rib_counter = method.p2()
         while True:
+            with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
+                bot.send_document(message.from_user.id, pic)
             if dark_rib_counter == len(method.matrix):
                 break
             else:
                 dark_rib_counter = method.a5()
 
         method.select_optimal_appointments_f1(primary)
-        primary.output_sum_f2()
         with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
             bot.send_document(message.from_user.id, pic)
-
         bot.send_message(message.from_user.id, f"СУММА: {primary.output_sum_f2()}")
         bot.send_message(message.from_user.id, "Задача решена")
 
