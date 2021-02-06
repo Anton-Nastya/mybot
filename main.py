@@ -9,6 +9,7 @@ from building_plan_methods.potential_optimization import Potential
 from building_plan_methods_E.potential_optimizationE import PotentialE
 from building_plan_methods_E.nwcornerE import NW_methodE
 from building_plan_methods_E.min_costE import Min_cost_methodE
+from building_plan_methods_E.fogelE import Fogel_methodE
 from building_plan_methods.fogel import Fogel_method
 
 from assignment_problem.hungarian_matrix import HungM_method
@@ -16,7 +17,7 @@ from assignment_problem.hungarian_graphic import HungG_method
 
 
 
-bot = telebot.TeleBot('1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw')
+bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
@@ -153,6 +154,42 @@ def hung_g_body(message):
         bot.send_message(message.from_user.id, "Задача решена")
 
 
+def building_plan_method(message, Method, Optimization, is_epsilon, command):
+    try:
+        method = Method(message.text, bot, message)
+        optimization = Optimization(method.build_matrix(), message)
+        with open(f"pictures/{method.name}{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
+        bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
+    except:
+        bot.send_message(message.from_user.id, f"Неверный ввод. Чтобы попробовать еще раз, введите /{command}")
+    else:
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                with open(f"pictures/potentials{'E' if is_epsilon else ''}{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+        except:
+            optimization.table_potentials()
+            with open(f"pictures/potentials{'E' if is_epsilon else ''}{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
+            bot.send_message(message.from_user.id, "Не удалось оптимизировать план")
+            if not is_epsilon:
+                bot.send_message(message.from_user.id,
+                                 f"Вырожденный план. Для использования метода потенциалов \
+                                 воспользуйтесь построением плана с помощью Е-метода (ввод /{command}E)")
+
+        else:
+            bot.send_message(message.from_user.id, "План оптимизирован")
+            sum_ = 0
+            for i in range(len(method.matrix)):
+                for j in range(len(method.matrix[i])):
+                    sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
+
+
 @bot.message_handler(commands=['minimal_cost', 'minimal_costE'])
 @privilege_check(bot)
 def start_mincost(message):
@@ -165,7 +202,7 @@ def start_mincost(message):
 
 
 def mincost_body(message):
-    try:
+    """try:
         method = Min_cost_method(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/minimal_cost{message.from_user.id}.png", "rb") as pic:
@@ -194,11 +231,13 @@ def mincost_body(message):
             for i in range(len(method.matrix)):
                 for j in range(len(method.matrix[i])):
                     sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
-            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")"""
+
+    building_plan_method(message, Min_cost_method, Potential, is_epsilon=False, command='minimal_cost')
 
 
 def mincostE_body(message):
-    try:
+    """try:
         method = Min_cost_methodE(message.text, bot, message)
         optimization = PotentialE(method.build_matrix(), message)
         with open(f"pictures/minimal_costE{message.from_user.id}.png", "rb") as pic:
@@ -219,7 +258,8 @@ def mincostE_body(message):
             for i in range(len(method.matrix)):
                 for j in range(len(method.matrix[i])):
                     sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
-            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")"""
+    building_plan_method(message, Min_cost_methodE, PotentialE, True, 'minimal_costE')
 
 
 @bot.message_handler(commands=['nwcorner', 'nwcornerE'])
@@ -234,7 +274,7 @@ def start_nwcorner(message):
 
 
 def nwcorner_body(message):
-    try:
+    """try:
         method = NW_method(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/nwcorner{message.from_user.id}.png", "rb") as pic:
@@ -263,11 +303,12 @@ def nwcorner_body(message):
             for i in range(len(method.matrix)):
                 for j in range(len(method.matrix[i])):
                     sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
-            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")"""
+    building_plan_method(message, NW_method, Potential, False, 'nwcorner')
 
 
 def nwcornerE_body(message):
-    try:
+    """try:
         method = NW_methodE(message.text, bot, message)
         optimization = PotentialE(method.build_matrix(), message)
         with open(f"pictures/nwcornerE{message.from_user.id}.png", "rb") as pic:
@@ -289,7 +330,8 @@ def nwcornerE_body(message):
             for i in range(len(method.matrix)):
                 for j in range(len(method.matrix[i])):
                     sum_ += method.matrix[i][j].capacity * method.matrix[i][j].price
-            bot.send_message(message.from_user.id, f"CУММА: {sum_}")
+            bot.send_message(message.from_user.id, f"CУММА: {sum_}")"""
+    building_plan_method(message, NW_methodE, PotentialE, True, 'nwcornerE')
 
 
 @bot.message_handler(commands=['fogel', 'fogelE'])
@@ -304,7 +346,7 @@ def fogel_start(message):
 
 
 def fogel_body(message):
-    try:
+    """try:
         method = Fogel_method(message.text, bot, message)
         optimization = Potential(method.build_matrix(), message)
         with open(f"pictures/fogel{message.from_user.id}.png", "rb") as pic:
@@ -326,11 +368,36 @@ def fogel_body(message):
                 bot.send_photo(message.from_user.id, photo=pic)
             bot.send_message(message.from_user.id,
                              "Вырожденный план. Для использования метода потенциалов \
-                             воспользуйтесь построением плана с помощью Е-метода (ввод /fogelE)")
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /fogelE)")"""
+    building_plan_method(message, Fogel_method, Potential, False, 'fogel')
 
 
-def fogel_bodyE(message):
-    pass
+def fogelE_body(message):
+    """try:
+        method = Fogel_methodE(message.text, bot, message)
+        optimization = PotentialE(method.build_matrix(), message)
+        with open(f"pictures/fogelE{message.from_user.id}.png", "rb") as pic:
+            bot.send_photo(message.from_user.id, photo=pic)
+        bot.send_message(message.from_user.id, "План построен")
+        # bot.send_message(message.from_user.id, "СУММА: {}".format(method.find_sum()))
+    except:
+        bot.send_message(message.from_user.id, "Неверный ввод. Чтобы попробовать еще раз, введите /fogelE")
+    else:
+        try:
+            optimize = True
+            while optimize:
+                optimize = optimization.potentials()
+                with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
+                    bot.send_photo(message.from_user.id, photo=pic)
+        except:
+            optimization.table_potentials()
+            with open(f"pictures/potentialsE{message.from_user.id}.png", "rb") as pic:
+                bot.send_photo(message.from_user.id, photo=pic)
+            bot.send_message(message.from_user.id,
+                             "Вырожденный план. Для использования метода потенциалов \
+                             воспользуйтесь построением плана с помощью Е-метода (ввод /fogelE)")"""
+    building_plan_method(message, Fogel_methodE, PotentialE, True, 'fogelE')
+
 
 
 @bot.message_handler(commands=['grant'])

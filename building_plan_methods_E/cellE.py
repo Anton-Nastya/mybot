@@ -27,3 +27,6 @@ class CellE:
         self.c_voln = ''
         self.delta = ''
         self.sign = ''
+
+    def get_cell_price(self):
+        return self.price * self.capacity

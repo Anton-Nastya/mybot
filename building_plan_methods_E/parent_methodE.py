@@ -21,9 +21,12 @@ def get_min_value(num1, num2):
     num2_val = num2[0] + num2[1] / 1000000
 
     if num1_val <= num2_val:
-        return num1
+        return num1[:]
     else:
-        return num2
+        return num2[:]
+
+def get_float_value(num):
+    return num[0] + num[1] / 1000000
 
 
 class MethodE:
@@ -36,6 +39,7 @@ class MethodE:
         self.a_matrix = []
         self.b_matrix = []
         self.name = ''
+        self.method_short_name = ''
 
         self.U = []
         self.V = []
@@ -96,7 +100,7 @@ class MethodE:
 
         padding = 6
 
-        draw.text((padding, padding), "NW", font=font, fill='black')
+        draw.text((padding, padding), self.method_short_name, font=font, fill='black')
 
         for i in range(1, col_num - 1):
             draw.text((cell_size[0] * i + padding, padding), "T{}".format(i), font=font, fill='black')
@@ -144,3 +148,12 @@ class MethodE:
                           str_E(*self.b_matrix[i - row_num][j - 1]), font=font, fill='black')
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")
+
+    def find_sum(self):
+        sum = 0
+        for line in self.matrix:
+            for cell in line:
+                if cell.capacity:
+                    sum += cell.get_cell_price()
+
+        return sum

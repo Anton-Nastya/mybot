@@ -1,18 +1,19 @@
-from building_plan_methods.parent_method import Method
+from building_plan_methods_E.parent_methodE import MethodE, get_min_value, get_float_value, str_E
 from PIL import Image, ImageDraw, ImageFont
+import copy
 
 
-class Fogel_method(Method):
+class Fogel_methodE(MethodE):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
-        self.name = 'fogel'
+        self.name = 'fogelE'
         self.method_short_name = 'F'
         self.col_num = len(self.matrix[0])
         self.row_num = len(self.matrix)
 
     def solution_of_matrix(self):
-        self.a_matrix.append(self.stock[:])
-        self.b_matrix.append(self.proposal[:])
+        self.a_matrix.append(copy.deepcopy(self.stock))
+        self.b_matrix.append(copy.deepcopy(self.proposal))
 
         self.fineA = [[0] * self.row_num]
         self.fineB = [[0] * self.col_num]
@@ -74,9 +75,9 @@ class Fogel_method(Method):
                     continue
                 elif self.fineA[k][i] == max_fine['fine']:
                     if line[0].price == min_line[0].price:
-                        if self.find_capacity(line[0], i, True)[0] <= \
-                                self.find_capacity(min_line[0], max_fine['index'],
-                                                   max_fine['horizontal'])[0]:
+                        if get_float_value(self.find_capacity(line[0], i, True)[0]) <= \
+                                get_float_value(self.find_capacity(min_line[0], max_fine['index'],
+                                                   max_fine['horizontal'])[0]):
                             continue
                     elif line[0].price > min_line[0].price:
                         continue
@@ -86,17 +87,20 @@ class Fogel_method(Method):
                 max_fine['horizontal'] = True
                 max_fine['index'] = i
 
-            capacity, index = self.find_capacity(min_line[0], max_fine['index'], max_fine['horizontal'])
+            capacity_and_E, index = self.find_capacity(min_line[0], max_fine['index'], max_fine['horizontal'])
 
-            min_line[0].capacity = capacity
-            self.a_matrix[k][index[0]] -= capacity
-            self.b_matrix[k][index[1]] -= capacity
+            min_line[0].capacity = capacity_and_E[0]
+            min_line[0].E = capacity_and_E[1]
+            self.a_matrix[k][index[0]][0] -= capacity_and_E[0]
+            self.b_matrix[k][index[1]][0] -= capacity_and_E[0]
+            self.a_matrix[k][index[0]][1] -= capacity_and_E[1]
+            self.b_matrix[k][index[1]][1] -= capacity_and_E[1]
 
-            if capacity != 0:
-                self.a_matrix.append(self.a_matrix[k][:])
-                self.b_matrix.append(self.b_matrix[k][:])
-                self.fineA.append(self.fineA[k][:])
-                self.fineB.append(self.fineB[k][:])
+            if get_float_value(capacity_and_E) != 0:
+                self.a_matrix.append(copy.deepcopy(self.a_matrix[k]))
+                self.b_matrix.append(copy.deepcopy(self.b_matrix[k]))
+                self.fineA.append(copy.deepcopy(self.fineA[k]))
+                self.fineB.append(copy.deepcopy(self.fineB[k]))
                 k += 1
 
             if len(min_line) == 1:
@@ -115,7 +119,7 @@ class Fogel_method(Method):
             self.fineB[-1][i] = ''
 
     def get_fine(self, line, need):
-        if need == 0:
+        if get_float_value(need) == 0:
             return ''
 
         if len(line) > 1:
@@ -129,17 +133,17 @@ class Fogel_method(Method):
         if horizontal:
             for j in range(self.col_num):
                 if self.matrix[index][j] == cell:
-                    return min(self.a_matrix[-1][index], self.b_matrix[-1][j]), (index, j)
+                    return get_min_value(self.a_matrix[-1][index], self.b_matrix[-1][j]), (index, j)
         else:
             for i in range(self.row_num):
                 if self.matrix[i][index] == cell:
-                    return min(self.a_matrix[-1][i], self.b_matrix[-1][index]), (i, index)
+                    return get_min_value(self.a_matrix[-1][i], self.b_matrix[-1][index]), (i, index)
 
 
     def print_matrix(self):
         for row in self.matrix:
             for cell in row:
-                print(cell.capacity, end=' ')
+                print(str(cell), end=' ')
             print('\n', end='')
         print('\n')
 
@@ -152,6 +156,8 @@ class Fogel_method(Method):
         return self.matrix
 
     def _fill_table(self, cell_size, row_num, col_num):
+        print(len(self.a_matrix) - 1)
+        print(self.a_matrix)
         img = Image.open(f"pictures/{self.name}{self.message.from_user.id}.png")
         draw = ImageDraw.Draw(img)
 
@@ -173,18 +179,18 @@ class Fogel_method(Method):
         draw.text((padding, cell_size[1] * (i + 1) + padding), "B", font=font, fill='black')
 
         for i in range(1, col_num - 1):
-            text = str(self.proposal[i - 1])
+            text = str_E(self.proposal[i - 1][0], self.proposal[i - 1][1])
             draw.text((cell_size[0] * i + padding, cell_size[1] * (row_num - 1) + padding), text, font=font,
                       fill='black')
 
         for i in range(1, row_num - 1):
-            text = str(self.stock[i - 1])
+            text = str_E(self.stock[i - 1][0], self.stock[i - 1][1])
             draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * i + padding), text, font=font,
                       fill='black')
 
         for i in range(1, row_num - 1):
             for j in range(1, col_num - 1):
-                cap_num = str(self.matrix[i - 1][j - 1].capacity)
+                cap_num = str(self.matrix[i - 1][j - 1])
                 cap_text_size = font.getsize(cap_num)
                 price_num = str(self.matrix[i - 1][j - 1].price)
                 draw.text((cell_size[0] * j + (cell_size[0] - cap_text_size[0]) / 2,
@@ -194,27 +200,27 @@ class Fogel_method(Method):
                           font=font_price,
                           fill='black')
 
-        draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * (row_num - 1) + padding),
-                  str(sum(self.stock)), font=font, fill='black')
+        # draw.text((cell_size[0] * (col_num - 1) + padding, cell_size[1] * (row_num - 1) + padding),
+        #           str(sum(self.stock)), font=font, fill='black')
 
         for i in range(col_num, col_num + len(self.a_matrix)):
             for j in range(1, len(self.a_matrix[0]) + 1):
                 fine = self.fineA[i - col_num][j - 1]
                 draw.text((cell_size[0] * i + padding, cell_size[1] * j + padding),
-                          str(self.a_matrix[i - col_num][j - 1]), font=font, fill='black')
+                          str_E(self.a_matrix[i - col_num][j - 1][0], self.a_matrix[i - col_num][j - 1][1]), font=font, fill='black')
 
                 if fine != '':
-                    draw.text((cell_size[0] * (i - 1) + padding * 5, cell_size[1] * j + padding * 2),
-                              '/' + str(fine), font=font, fill='black')
+                    draw.text((cell_size[0] * (i) - padding * 3, cell_size[1] * j + padding * 2),
+                              '/' + str(fine), font=font_price, fill='black')
 
         for i in range(row_num, row_num + len(self.b_matrix)):
             for j in range(1, len(self.b_matrix[0]) + 1):
                 fine = self.fineB[i - row_num][j - 1]
                 draw.text((cell_size[0] * j + padding, cell_size[1] * i + padding),
-                          str(self.b_matrix[i - row_num][j - 1]), font=font, fill='black')
+                          str_E(self.b_matrix[i - row_num][j - 1][0], self.b_matrix[i - row_num][j - 1][1]), font=font, fill='black')
 
                 if fine != '':
-                    draw.text((cell_size[0] * j + padding * 5, cell_size[1] * (i - 1) + padding * 2),
-                              '/' + str(fine), font=font, fill='black')
+                    draw.text((cell_size[0] * (j + 1) - padding * 3, cell_size[1] * (i) - padding * 3),
+                              '/' + str(fine), font=font_price, fill='black')
 
         img.save(f"pictures/{self.name}{self.message.from_user.id}.png")

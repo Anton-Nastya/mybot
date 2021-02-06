@@ -6,6 +6,7 @@ class Min_cost_methodE(MethodE):
     def __init__(self, matrix, bot, message):
         super().__init__(matrix, bot, message)
         self.name = 'minimal_costE'
+        self.method_short_name = 'MC'
 
 
     def solution_of_matrix(self):
