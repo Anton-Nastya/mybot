@@ -134,7 +134,11 @@ def hung_g_body(message):
                 break
             else:
                 dark_rib_counter = method.a5()
-
+                if type(dark_rib_counter) is not int:
+                    with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
+                        bot.send_document(message.from_user.id, pic)
+                    bot.send_message(message.from_user.id, dark_rib_counter)
+                    return
         method.select_optimal_appointments_f1(primary)
         with open(f"pictures/hung_graph_formate{message.from_user.id}.png", "rb") as pic:
             bot.send_document(message.from_user.id, pic)

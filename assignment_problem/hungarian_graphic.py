@@ -132,12 +132,193 @@ class HungG_method(Method):
         self.create_formate((self.iteration, self.row))
 
         self.row += 1
+        print(f'-----ИТЕРАЦИЯ {self.iteration}')
         print(f'Проверка совершенности: {num_independent_zer}')
         return num_independent_zer
 
-    # ------------------------------------------Поиск зависимых нулей---------------------------------------------------
+    # ----------------------------------Поиск и построение аугметальной цепи--------------------------------------------
 
     def a5(self):
+        print('А5')
+        num_col = len(self.matrix)
+        queue = []
+        i = j = 0
+
+        for i in range(num_col):
+            self.marks_hor_top_inter[i] = f'y{i + 1}'
+            self.marks_vert_left_inter[i] = f'x{i + 1}'
+
+        # в цикле находим строки без независимых нулей
+        # и сохраняем их в очередь, подчеркиваем такие строки строки и столбцы
+        # координаты найденных нулей заносим в очередь
+        for i in range(num_col):
+            if self.search_ind_zer_in_row(i):
+                for j in range(num_col):
+                    if self.matrix[i][j].plus_or_sine == '+':
+                        queue.append([(i, j)])
+                    if self.search_ind_zer_in_row(i):
+                        self.accent_vert_left_inter[i] = 1
+                    if self.search_ind_zer_in_col(j):
+                        self.accent_hor_top_inter[j] = 1
+        # обрабатываем случай, когда в строке не нашлось зависимых нулей(+)
+        if len(queue) == 0:
+            for i in range(num_col - 1, -1, -1):
+                if self.accent_vert_left_inter[i] == 1:
+                    queue.append([(i, -1)])
+                    break
+
+        # в прошлом шаге получили очередь состоящую из начал потенциальных аугментальных цепей
+        # достраиваем каждую такую цепь до конца и выбираем из них самую длинную, если таких несколько - последнюю
+        for chain in queue:
+            self.search_for_augmental_chains_a5(chain)
+        max_len = 0
+        max_chain = []
+        delete_list = []
+        # в некоторых матрицах после выполнения на определенных ауг цепях а7 появляются отрицательные числа,
+        # здесь мы проверяем и удаляем эти цепи
+        for i in range(len(queue)):
+            if len(queue[i]) % 2 == 0 and self.check_against_negative_values(queue[i]):
+                delete_list.insert(0, i)
+                continue
+        for num in delete_list:
+            queue.pop(num)
+        if len(queue) == 0:
+            return "Упс. Не найдены корректные пути решения.\n" \
+                   "Возможно, вам достался некорректный вариант, уточните у преподавателя.\n" \
+                   "Если это не помогло, обратитесь к разработчикам и опишите проблему, мы постараемся помочь. Мы:\n" \
+                   "TG: @prosto_toxa, @NesteaTea\n" \
+                   "ВК: nestea_tea261"
+        # выбираем из оставшихся цепей самую длинную, если таких несколько - последнюю
+        for chain in queue:
+            if len(chain) >= max_len:
+                max_len = len(chain)
+                max_chain = chain
+
+        self.drawing_of_augmental_chain(max_chain)
+        self._create_table('', state='A5')
+        self.create_formate((self.iteration, self.row))
+        self.row += 1
+
+        if len(max_chain) > 1 and len(max_chain) % 2 != 0:
+            # аугментальная цепь успешно найдена, строим ее (А6)
+            self.a6()
+
+            self._create_table('', state='A6')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+            self.set_def(self.marks_hor_top_inter)
+            self.set_def(self.marks_vert_left_inter)
+
+            return self.p2(first=False)
+        else:
+            # аументальная цепь не найдена, значит необходимо провести дополнительную редукцию (А7)
+            self.search_for_minimums_a7()
+
+            self.strings_bottom = []
+            self._create_table('', state='A7')
+            self.create_formate((self.iteration, self.row))
+            self.row = 1
+            self.iteration += 1
+            self.set_def(self.marks_vert_left_inter)
+            self.set_def(self.marks_hor_top_inter)
+
+            return self.p2(first=False)
+
+    def check_against_negative_values(self, chain):
+        num_col = len(self.matrix)
+        marks_hor = [0 for i in range(num_col)]
+        marks_vert = [0 for i in range(num_col)]
+
+        for point in chain:
+            i = point[0]
+            j = point[1]
+            marks_hor[j] = 1
+            marks_vert[i] = 1
+
+        for i in range(num_col):
+            for j in range(num_col):
+                if marks_vert[i] == 1 and marks_hor[j] == 0:
+                    if self.matrix[i][j].capacity == 0:
+                        return True
+        return False
+
+    def drawing_of_augmental_chain(self, chain):
+        print(f'Рисуем цепь для {chain}')
+
+        index_for_marks = 0
+        string = []
+        k = 0
+        i = chain[k][0]
+        j = chain[k][1]
+
+        if chain[0][1] == -1:
+            self.marks_vert_left_exter[chain[0][0]] = f'{1} '
+            self.index_vert_left_exter[chain[0][0]] = 0
+        else:
+            for k in range(len(chain)):
+                i = chain[k][0]
+                j = chain[k][1]
+                if self.matrix[i][j].plus_or_sine == '+':
+                    self.marks_vert_left_exter[i] = f'[{k + 1} ]'
+                    self.index_vert_left_exter[i] = index_for_marks
+                    index_for_marks = i + 1
+                    string.insert(0, self.marks_vert_left_inter[i])
+                else:
+                    self.marks_hor_top_exter[j] = f'[{k + 1} ]'
+                    self.index_hor_top_exter[j] = index_for_marks
+                    index_for_marks = j + 1
+                    string.insert(0, self.marks_hor_top_inter[j])
+
+            if len(chain) > 0:
+                if self.matrix[i][j].plus_or_sine == '-':
+                    self.marks_vert_left_exter[i] = f'{k + 2} '
+                    self.index_vert_left_exter[i] = index_for_marks
+                    string.insert(0, self.marks_vert_left_inter[i])
+                else:
+                    self.marks_hor_top_exter[j] = f'{k + 2} '
+                    self.index_hor_top_exter[j] = index_for_marks
+                    string.insert(0, self.marks_hor_top_inter[j])
+
+            if len(chain) > 1 and len(chain) % 2 == 1:
+                self.strings_bottom = string
+
+    def search_for_augmental_chains_a5(self, chain):
+        print(f'Строим аугментальную цепь из {chain[0]}')
+        col_num = len(self.matrix)
+        horizontal = False
+
+        i = chain[0][0]
+        j = chain[0][1]
+        steps_count = 0
+        marks_for_y = [0 for i in range(col_num)]
+        marks_for_y[j] = 1
+
+        while True:
+            if horizontal:
+                j = (j + 1) % col_num
+                sought = '+'
+            else:
+                i = (i - 1) % col_num
+                sought = '-'
+
+            steps_count += 1
+
+            if steps_count == col_num:
+                break
+
+            if sought == '+' and marks_for_y[j] == 1:
+                continue
+            
+            if self.matrix[i][j].plus_or_sine != sought:
+                continue
+
+            chain.append((i, j))
+            marks_for_y[j] = 1
+            horizontal = not horizontal
+            steps_count = 0
+
+    """def a5(self):
         print('А5')
         num_col = len(self.matrix)
         queue = []
@@ -186,9 +367,6 @@ class HungG_method(Method):
 
             self.search_for_minimums_a7()
 
-            '''for i in range(num_col):
-                for j in range(num_col):
-                    self.matrix[i][j].set_default()'''
             self.strings_bottom = []
             self._create_table('', state='A7')
             self.create_formate((self.iteration, self.row))
@@ -199,8 +377,9 @@ class HungG_method(Method):
             self.set_def(self.marks_hor_top_inter)
 
             return self.p2(first=False)
+            
+        def search_for_augmental_chains_a5(self, start):
 
-    def search_for_augmental_chains_a5(self, start):
         print('Поиск аугментальной цепи')
         col_num = len(self.matrix)
         chains = []
@@ -252,7 +431,7 @@ class HungG_method(Method):
                 else:
                     i = (i - 1) % col_num
 
-        return exit_key, chains
+        return exit_key, chains"""
 
     # ----------------------------------------Инвентирование знаков-----------------------------------------------------
 
