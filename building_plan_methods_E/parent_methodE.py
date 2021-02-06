@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from building_plan_methods_E.cellE import CellE
+from functools import reduce
 
 
 def str_E(num, E):
@@ -62,7 +63,7 @@ class MethodE:
             raise ValueError
         self.proposal = row
 
-        """if sum(self.proposal[:][0]) != sum(self.stock[:][0]):
+        """if sum(self.proposal[0]) != sum(self.stock[:][0]):
             raise ValueError"""
 
     def _create_table(self):
