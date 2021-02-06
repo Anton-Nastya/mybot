@@ -23,7 +23,6 @@ bot = telebot.TeleBot('1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw')
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
 # main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
 
-
 def check_user(user_id, name):
     with open("data_files/users.json", "r") as f:
         users = json.load(f)
