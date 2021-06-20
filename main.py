@@ -1,5 +1,6 @@
 import telebot
 import json
+import time
 import os
 from privilege_checker import privilege_check
 
@@ -16,9 +17,11 @@ from building_plan_methods.fogel import Fogel_method
 from assignment_problem.hungarian_matrix import HungM_method
 from assignment_problem.hungarian_graphic import HungG_method
 
+from optimization_methods.uniform_searching_algorithm import UniformSearchingAlgorithm
+from optimization_methods.bisection_algorithm import BisectionAlgorithm
 
+bot = telebot.TeleBot('1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI')
 
-bot = telebot.TeleBot('1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw')
 
 # debug token: 1220716581:AAFwCqgGdZy4TPfmOu4-Em6nw2Aw-Xhh8vw
 # main token: 1213161131:AAGbWfQTDsmfHOoEzz_y2QpNEalvZLMmcdI
@@ -42,6 +45,7 @@ def check_user(user_id, name):
         with open("data_files/users.json", "w") as f:
             json.dump(users, f, ensure_ascii=False)
 
+
 def delete_picture(filename):
     pictures = os.path.abspath('./pictures')
     file = pictures + '/' + filename
@@ -50,7 +54,6 @@ def delete_picture(filename):
             os.remove(file)
         except:
             print("Не удалось удалить файл")
-
 
 
 @bot.message_handler(commands=['help'])
@@ -99,13 +102,13 @@ def hung_m_body(message):
     else:
         bot.send_message(message.from_user.id, "Все введено верно.\nРешаю...")
         algorithm = {'R1': method.col_reduction_r1,
-                    'R2': method.row_reduction_r2,
-                    'P1': method.preparatory_stage_p1,
-                    'P2': method.search_for_col_with_ind_zeros_p2,
-                    'F1': method.select_optimal_appointments_f1,
-                    'A1': method.a1,
-                    'A2': method.a2,
-                    'A3': method.a3}
+                     'R2': method.row_reduction_r2,
+                     'P1': method.preparatory_stage_p1,
+                     'P2': method.search_for_col_with_ind_zeros_p2,
+                     'F1': method.select_optimal_appointments_f1,
+                     'A1': method.a1,
+                     'A2': method.a2,
+                     'A3': method.a3}
 
         status = 'R1'
         iteration = 0
@@ -256,6 +259,41 @@ def fogelE_body(message):
     building_plan_method(message, Fogel_methodE, PotentialE, True, 'fogelE')
 
 
+@bot.message_handler(commands=['usa'])
+@privilege_check(bot)
+def start_uniform_search_algorithm(message):
+    bot.send_message(message.from_user.id, "Введите: уравнение a b N")
+
+    bot.register_next_step_handler(message, uniform_search_algorithm_body)
+
+
+def uniform_search_algorithm_body(message):
+    solution = UniformSearchingAlgorithm(message.text)
+
+    while not solution.too_small():
+        result = solution.eval_min()
+        bot.send_message(message.from_user.id, '\n'.join(result))
+
+    bot.send_message(message.from_user.id, "Расчет окончен")
+
+
+@bot.message_handler(commands=['ba'])
+@privilege_check(bot)
+def start_bisection_algorithm(message):
+    bot.send_message(message.from_user.id, "Введите: уравнение a b delta")
+
+    bot.register_next_step_handler(message, bisection_algorithm_body)
+
+
+def bisection_algorithm_body(message):
+    solution = BisectionAlgorithm(message.text)
+
+    while not solution.too_small():
+        result = solution.eval_min()
+        bot.send_message(message.from_user.id, '\n'.join(result))
+
+    bot.send_message(message.from_user.id, "Расчет окончен")
+
 
 @bot.message_handler(commands=['grant'])
 @privilege_check(bot)
@@ -286,4 +324,8 @@ def get_text_messages(message):
     bot.send_message(message.from_user.id, message_text)
 
 
-bot.polling(none_stop=True, interval=0)
+while True:
+    try:
+        bot.polling(none_stop=True, interval=0)
+    except:
+        time.sleep(2)

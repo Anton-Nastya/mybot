@@ -112,7 +112,7 @@ class Fogel_method(Method):
             self.fineA[-1][i] = ''
 
         for i in range(self.col_num):
-            self.fineB[-1][i] = ''
+             self.fineB[-1][i] = ''
 
     def get_fine(self, line, need):
         if need == 0:
